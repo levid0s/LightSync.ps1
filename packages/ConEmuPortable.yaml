@@ -1,0 +1,8 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/{PkgName}.exe"
+    args: ""
+    icon: "{PkgPath}/App/ConEmu/ConEmu.exe"
+fonts:
+  - name: "Cascadia Code PL"
+    file: "{PkgPath}/_ExtRes/CascadiaCodePL.ttf"

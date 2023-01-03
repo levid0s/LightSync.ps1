@@ -1,0 +1,8 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/PkgName.exe"
+    args: ""
+    icon: "{PkgPath}/7zFM.exe"
+    assoc: ["zip", "7z", "rar"]
+  - name: "7zG"
+    target: "{PkgPath}/7zG.exe"

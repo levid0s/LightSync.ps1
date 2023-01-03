@@ -13,10 +13,6 @@ $StartUp = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 
 $version = "7.4.2"
 
-if(!$PsDscRunAsCreds) {
-  [PSCredential]$PsDscRunAsCreds = Get-Credential
-}
-
 $Config = @{
   AllNodes = @(
     @{
@@ -51,11 +47,6 @@ $Shortcuts = @(
 )
 
 Configuration LibreOfficePortable {
-  # param
-  # (
-  #   [String]$UserName
-  # )
-
   Import-DscResource -ModuleName PSDesiredStateConfiguration
   Import-DscResource -ModuleName DSCR_Shortcut
   Import-DscResource -ModuleName DSCR_FileAssoc
@@ -102,6 +93,15 @@ Configuration LibreOfficePortable {
     }
   }
 }
+
+if($Shortcuts.Assoc) {
+  $CredsNeeded = $true
+}
+
+if($CredsNeeded -and !$PsDscRunAsCreds) {
+  [PSCredential]$PsDscRunAsCreds = Get-Credential
+}
+
 
 LibreOfficePortable -ConfigurationData $Config  -OutputPath "./mofs/LibreOfficePortable"
 # winrm quickconfig
