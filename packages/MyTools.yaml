@@ -1,0 +1,13 @@
+paths:
+  - "{DbxRoot}/google-cloud-sdk-withpy/bin"
+  - "{DbxRoot}/sysinternals"
+  - "{DbxRoot}/Hashicorp"
+  - "{DbxRoot}/Notepad++"
+  - "{DbxRoot}/PuTTY"
+  - "{DbxRoot}/Hashicorp"
+  - "{DbxRoot}/GitBashPortable/bin"
+  - "{DbxRoot}/GitBashPortable/mingw64/bin"
+  - "{DbxRoot}/GitBashPortable/usr/bin"
+  - "{DbxRoot}/ffmpeg/bin"
+  - "{DbxRoot}"
+  

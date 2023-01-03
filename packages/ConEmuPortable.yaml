@@ -5,4 +5,4 @@ shortcuts:
     icon: "{PkgPath}/App/ConEmu/ConEmu.exe"
 fonts:
   - name: "Cascadia Code PL"
-    file: "{PkgPath}/_ExtRes/CascadiaCodePL.ttf"
+    path: "{PkgPath}/_ExtRes/CascadiaCodePL.ttf"

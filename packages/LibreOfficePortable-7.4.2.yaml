@@ -1,0 +1,14 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/LibreOfficePortable.exe"
+    assocparam: " -o \"%1\""
+  - name: "{PkgName} Calc"
+    target: "{PkgPath}/LibreOfficeCalcPortable.exe"
+    assoc: ["xls", "xlsx"]
+    assocparam: " -o \"%1\""
+  - name: "{PkgName} Draw"
+    target: "{PkgPath}/LibreOfficeDrawPortable.exe"
+    assocparam: " -o \"%1\""
+  - name: "{PkgName} Writer"
+    target: "{PkgPath}/LibreOfficeWriterPortable.exe"
+    assocparam: " -o \"%1\""
