@@ -1,0 +1,3 @@
+shortcuts:
+  - name: "TreeSize Free"
+    target: "{PkgPath}/TreeSizeFree.exe"

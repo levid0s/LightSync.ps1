@@ -1,0 +1,3 @@
+shortcuts:
+  - name: "Winamp"
+    target: "{DbxRoot}/Winamp-58portable/winamp.exe"

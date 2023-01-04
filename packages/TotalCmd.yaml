@@ -1,0 +1,3 @@
+shortcuts:
+  - name: "Total Commander"
+    target: "{PkgPath}/{PkgName}64.exe"

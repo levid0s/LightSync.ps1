@@ -1,0 +1,3 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/{PkgName}.exe"

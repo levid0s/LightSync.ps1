@@ -9,5 +9,8 @@ paths:
   - "{DbxRoot}/GitBashPortable/mingw64/bin"
   - "{DbxRoot}/GitBashPortable/usr/bin"
   - "{DbxRoot}/ffmpeg/bin"
+  - "{DbxRoot}/flac-1.3.2-win/win64"
+  - "{DbxRoot}/go/bin"
+  - "{DbxRoot}/Graphviz/bin"
   - "{DbxRoot}"
   
