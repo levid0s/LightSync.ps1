@@ -8,5 +8,5 @@ reg:
     type: "String"
   - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX"
     name: "Icon"
-    data: "{PkgPath}/notepad++.exe,1"
+    data: "{PkgPath}/notepad++.exe,0"
     type: "String"

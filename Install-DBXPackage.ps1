@@ -108,7 +108,7 @@ Install-ModuleIfNotPresent 'PowerShell-YAML'
 Install-ModuleIfNotPresent 'DSCR_Shortcut'
 Install-ModuleIfNotPresent 'DSCR_FileAssoc'
 
-$CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $true
+$CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
 
 if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
   [PSCredential]$PsDscRunAsCreds = Get-Credential
