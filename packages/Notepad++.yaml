@@ -1,0 +1,12 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/notepad++.exe"
+reg:
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX\\command"
+    name: ""
+    data: "\"{PkgPath}/notepad++.exe\" \"%1\""
+    type: "String"
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX"
+    name: "Icon"
+    data: "{PkgPath}/notepad++.exe,1"
+    type: "String"
