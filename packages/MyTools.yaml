@@ -13,4 +13,6 @@ paths:
   - "{DbxRoot}/go/bin"
   - "{DbxRoot}/Graphviz/bin"
   - "{DbxRoot}"
-  
+shortcuts:
+  - name: "DBX Tools"
+    target: "%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\DBXSync"

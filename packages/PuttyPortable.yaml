@@ -1,0 +1,3 @@
+shortcuts:
+  - name: "Putty"
+    target: "{PkgPath}/{PkgName}.exe"

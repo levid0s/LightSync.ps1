@@ -2,7 +2,7 @@
 # Update-Module PowerShellGet -Force
 
 param(
-  [Parameter(Mandatory=$true)][string]$PackageFile
+  [Parameter(Mandatory = $true)][string]$PackageFile
 )
 
 $InformationPreference = 'Continue'
@@ -52,6 +52,11 @@ function TemplateStr {
   $NewString = $NewString -replace '/', '\'
   return $NewString
 }
+
+
+###
+###  PATHs
+###
 
 function Get-EnvPathsArr {
   [OutputType([String[]])]  
@@ -103,6 +108,71 @@ function Add-UserPaths {
   }
 }
 
+###
+###  Folders
+###
+
+function Get-ExeVersion() {
+  param(
+    [string]$Path
+  )
+
+  $version = (Get-Item $Path).VersionInfo.FileVersionRaw
+  return $version
+}
+
+function Set-FolderComment() {
+  param(
+    [string]$Path,
+    [string]$Comment
+  )
+
+  if (!(Test-Path $Path)) {
+    New-Item -ItemType Directory -Path $Path
+  }
+
+  $IniPath = "$Path\desktop.ini"
+  if (!(Test-Path $IniPath)) {
+    # Create the file from scratch if it doesn't exist
+
+    $Content = @"
+[.ShellClassInfo]
+InfoTip=$Comment
+"@
+    Set-Content -Path $IniPath -Value $Content
+  }
+
+  else {
+    # Update the File
+    $Content = (Get-Content $IniPath ) -as [Collections.ArrayList]
+    Write-Debug "Content of ${IniPath}:"
+    Write-Debug [String[]]$Content
+
+    $HeaderLineNumber = $Content | Select-String -Pattern  "^\[\.ShellClassInfo\]"  | Select-Object -First 1 -ExpandProperty LineNumber
+    If (!$HeaderLineNumber) {
+      $Content.Insert($Content.Count, "[.ShellClassInfo]")
+      $HeaderLineNumber = $Content.Count
+    }
+
+    $CommentLineNumber = $Content | Select-String -Pattern "^InfoTip=" | Select-Object -First 1 -ExpandProperty LineNumber
+    If (!$CommentLineNumber) {
+      $Content.Insert($Content.Count, "InfoTip=$Comment")
+    }
+    else {
+      $Content[$CommentLineNumber - 1] = "InfoTip=$Comment"
+    }
+
+    $Content | Set-Content -Path $IniPath -Force
+  }
+
+  # Check Attributes
+  $IniFile = Get-ChildItem $IniPath -Force
+  $IniAttr = $IniFile.Attributes
+
+  if ($IniAttr -notlike '*Hidden*' -or $IniAttr -notlike '*System*') {
+    $IniFile.Attributes = 'Hidden', 'System'
+  }
+}
 
 $PackageObj = Get-Content $PackageFile | ConvertFrom-Yaml
 $PackageName = [System.IO.Path]::GetFileNameWithoutExtension($PackageFile)
@@ -130,7 +200,7 @@ if ($AdminNeeded) {
 $CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
 
 if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
-  [PSCredential]$PsDscRunAsCreds = Get-Credential
+  Throw 'Please run:    [PSCredential]$PsDscRunAsCreds = Get-Credential   '
 }
 
 $Config = @{
@@ -233,6 +303,18 @@ Configuration $PackageNameDSC {
 Remove-DscConfigurationDocument -Stage Pending
 Invoke-Expression "$PackageNameDSC -ConfigurationData `$Config -OutputPath `"./mofs/$PackageNameDSC`" "
 Start-DscConfiguration -Wait -Verbose -Path "./mofs/$PackageNameDSC"
+
+###
+###  Set Folder comment
+###
+
+foreach ($f in $PackageObj.Folders) {
+  
+  if ($f.VersionFrom) {
+    $Version = Get-ExeVersion(TemplateStr($f.VersionFrom))
+    Set-FolderComment -Path (TemplateStr($f.Path)) -Comment $Version
+  }
+}
 
 ###
 ###  Do the paths manually

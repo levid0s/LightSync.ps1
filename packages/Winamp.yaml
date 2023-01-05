@@ -1,3 +1,6 @@
 shortcuts:
   - name: "Winamp"
     target: "{DbxRoot}/Winamp-58portable/winamp.exe"
+folders:
+  - path: "{DbxRoot}/Winamp-58portable"
+    versionfrom: "{DbxRoot}/Winamp-58portable/winamp.exe"

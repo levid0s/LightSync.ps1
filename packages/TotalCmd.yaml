@@ -1,3 +1,6 @@
 shortcuts:
   - name: "Total Commander"
     target: "{PkgPath}/{PkgName}64.exe"
+folders:
+  - path: "{PkgPath}"
+    versionfrom: "{PkgPath}/totalcmd64.exe"
