@@ -2,7 +2,7 @@
 # Update-Module PowerShellGet -Force
 
 param(
-  [string]$PackageFile = "./packages/sysinternals.yaml"
+  [Parameter(Mandatory=$true)][string]$PackageFile
 )
 
 $InformationPreference = 'Continue'
@@ -11,6 +11,25 @@ $VerbosePreference = 'Continue'
 
 ${Dry-Run} = $false
 
+$DropboxRealRoot = "D:\Dropbox"
+$DBXRoot = "N:\Tools"
+$StartMenu = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\DBXSync"
+$StartUp = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
+
+$SubstFile = "$StartUp\subst-m-n.bat"
+if (!(Test-Path $SubstFile)) {
+  $formatText = @"
+  subst m: $DropboxRealRoot\music
+  subst n: $DropboxRealRoot
+  timeout 2
+"@
+  Set-Content $SubstFile -Value $formatText
+  $Subst
+}
+
+if (!((Test-Path 'M:') -and (Test-Path 'N:'))) {
+  &$SubstFile
+}
 
 function Install-ModuleIfNotPresent {
   param(
@@ -84,21 +103,6 @@ function Add-UserPaths {
   }
 }
 
-$DropboxRealRoot = "D:\Dropbox"
-$DBXRoot = "N:\Tools"
-$StartMenu = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\DBXSync"
-$StartUp = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
-
-if (!(Test-Path "$StartUp\subst-m-n.bat")) {
-  $formatText = @"
-  subst m: $DropboxRealRoot\music
-  subst n: $DropboxRealRoot
-  pause
-"@
-  Set-Content  "$StartUp\subst-m-n.bat" -Value $formatText
-  $Subst
-}
-
 
 $PackageObj = Get-Content $PackageFile | ConvertFrom-Yaml
 $PackageName = [System.IO.Path]::GetFileNameWithoutExtension($PackageFile)
@@ -107,6 +111,21 @@ $PackageNameDSC = 'DSC-' + $PackageName -replace '[^0-9a-zA-Z-]', ''
 Install-ModuleIfNotPresent 'PowerShell-YAML'
 Install-ModuleIfNotPresent 'DSCR_Shortcut'
 Install-ModuleIfNotPresent 'DSCR_FileAssoc'
+
+
+$AdminNeeded = $PackageObj.Shortcuts -ne $null
+
+if ($AdminNeeded) {
+  If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+    # TBC
+    # $ScriptPath = $MyInvocation.MyCommand.Definition
+    # $PsCmd = (Get-ChildItem -Path "$PSHome\pwsh*.exe", "$PSHome\powershell*.exe")[0]
+    # Start-Process "$PsCmd" `
+    #   -Verb runAs `
+    #   -ArgumentList "-File", "$ScriptPath", '-$PackageFile', "$PackageFile"
+    # Break
+  }
+}
 
 $CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
 
