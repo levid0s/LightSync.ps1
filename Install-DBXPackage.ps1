@@ -129,19 +129,31 @@ Configuration $PackageNameDSC {
   Import-DscResource -ModuleName DSCR_Font
   Import-DscResource -ModuleName DSCR_FileAssoc
   # Import-DscResource -ModuleName xPSDesiredStateConfiguration
+
   Node localhost {
 
     $i = 0
     foreach ($s in $PackageObj.Shortcuts) {
       $i ++
       $sobj = [System.IO.Path]::GetFileNameWithoutExtension($s.Target)
+      # StartIn in exe's folder by default.
+      
+      $Target = TemplateStr($s.Target)
+
+      if ($s.StartIn -eq $null) { 
+        $StartIn = Split-Path -Path $Target 
+      }
+      else { 
+        $StartIn = TemplateStr($s.StartIn) 
+      }
 
       cShortcut $sobj {
-        Path      = "$StartMenu\$(TemplateStr($s.Name)) DBX.lnk"
-        Target    = TemplateStr($s.Target)
-        Arguments = TemplateStr($s.Args)
-        Icon      = TemplateStr($s.Icon)
-        Ensure    = "Present"
+        Path             = "$StartMenu\$(TemplateStr($s.Name)) DBX.lnk"
+        Target           = $Target
+        Arguments        = TemplateStr($s.Args)
+        Icon             = TemplateStr($s.Icon)
+        WorkingDirectory = $StartIn
+        Ensure           = "Present"
       }
 
       foreach ($ext in $s.Assoc) {
