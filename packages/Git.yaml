@@ -8,3 +8,4 @@ exec: # Not implemented yet
 symlink: # Not implemented yet
   - link: "$env:USERPROFILE\\.ssh"
     target: "{DbxRoot}\\ssh"
+    force: true # move target out of the way if already exists
