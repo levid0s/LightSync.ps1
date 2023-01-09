@@ -2,7 +2,9 @@ paths:
   - "{DbxRoot}/GitBashPortable/bin"
   - "{DbxRoot}/GitBashPortable/mingw64/bin"
   - "{DbxRoot}/GitBashPortable/usr/bin"
-exec:
+exec: # Not implemented yet
   - "git config --global user.name \"Lev\""
   - "git config --global user.email lev@me.com"
-  
+symlink: # Not implemented yet
+  - link: "$env:USERPROFILE\\.ssh"
+    target: "{DbxRoot}\\ssh"
