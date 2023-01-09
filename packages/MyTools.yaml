@@ -16,5 +16,6 @@ paths:
 shortcuts:
   - name: "DBX Tools"
     target: "%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\DBXSync"
-  - name: "Dropbox Tools"
+    icon: "{DbxRoot}\\_PACKAGES\\res\\favicon.ico"
+  - name: "Dropbox\\Tools"
     target: "{DbxRoot}"

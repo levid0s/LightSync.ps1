@@ -5,3 +5,6 @@ files:
     state: absent
   - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python3.exe"
     state: absent
+paths:
+  - "{DbxRoot}\\Python3.11.1"
+  - "{DbxRoot}\\Python3.11.1\\Scripts"
