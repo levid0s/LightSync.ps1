@@ -1,0 +1,5 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/code.exe"
+paths:
+  - "{PkgPath}"

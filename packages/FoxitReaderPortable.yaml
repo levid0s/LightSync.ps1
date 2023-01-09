@@ -2,4 +2,3 @@ shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/{PkgName}.exe"
     assoc: ["pdf"]
-    assocparam: " \"%1\""

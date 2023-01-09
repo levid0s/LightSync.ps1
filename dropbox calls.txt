@@ -1,0 +1,27 @@
+{0E32D9F9-10FB-4b90-8B24-826B07B084D0}
+Offline Files Make Available Offline Command
+%SystemRoot%\System32\cscui.dll
+ThreadingModel -> Apartment
+MUIVerb: @%SystemRoot%\system32\cscui.dll,-7011
+
+
+{51CAFEF2-C040-4022-A152-53033EE9A02B}
+Sync root make available offline verb
+MUIVerb: @windows.fileexplorer.common.dll,-51331
+DelegateExecute: {51CAFEF2-C040-4022-A152-53033EE9A02B}
+
+
+C:\Windows\System32\Windows.FileExplorer.Common.dll
+
+
+
+
+
+Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Applications\wordpad.exe
+Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Classes\SystemFileAssociations\text\OpenWithList\WordPad.exe
+Computer\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WORDPAD.EXE
+
+
+Computer\HKEY_CURRENT_USER\SOFTWARE\Classes\Applications
+
+

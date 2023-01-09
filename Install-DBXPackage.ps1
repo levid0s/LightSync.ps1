@@ -1,5 +1,7 @@
 # Install-Module PowerShellGet -Force
 # Update-Module PowerShellGet -Force
+# winrm quickconfig / maybe??
+# + Set Wifi network to Private
 
 param(
   [Parameter(Mandatory = $true)][string]$PackageFile
@@ -11,7 +13,8 @@ $VerbosePreference = 'Continue'
 
 ${Dry-Run} = $false
 
-$DropboxRealRoot = "D:\Dropbox"
+# $DropboxRealRoot = "D:\Dropbox"
+$DropboxRealRoot = "C:\Users\Lev\Dropbox"
 $DBXRoot = "N:\Tools"
 $StartMenu = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\DBXSync"
 $StartUp = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
@@ -181,7 +184,7 @@ $PackageNameDSC = 'DSC-' + $PackageName -replace '[^0-9a-zA-Z-]', ''
 Install-ModuleIfNotPresent 'PowerShell-YAML'
 Install-ModuleIfNotPresent 'DSCR_Shortcut'
 Install-ModuleIfNotPresent 'DSCR_FileAssoc'
-
+Install-ModuleIfNotPresent 'DSCR_Font'
 
 $AdminNeeded = $PackageObj.Shortcuts -ne $null
 
@@ -245,17 +248,17 @@ Configuration $PackageNameDSC {
         Ensure           = "Present"
       }
 
-      foreach ($ext in $s.Assoc) {
-        $aobj = "Assoc-$i-$ext"
-        $assocCmd = $s.Target + $s.AssocParam
-        cFileAssoc $aobj {
-          Extension            = $ext
-          FileType             = "LibreOfficeDBX." + $ext
-          Command              = $assocCmd
-          PsDscRunAsCredential = ($PsDscRunAsCreds)
-          Ensure               = "Present"
-        }        
-      }
+      # foreach ($ext in $s.Assoc) {
+      #   $aobj = "Assoc-$i-$ext"
+      #   $assocCmd = $s.Target + $s.AssocParam
+      #   cFileAssoc $aobj {
+      #     Extension            = $ext
+      #     FileType             = "LibreOfficeDBX." + $ext
+      #     Command              = $assocCmd
+      #     PsDscRunAsCredential = ($PsDscRunAsCreds)
+      #     Ensure               = "Present"
+      #   }        
+      # }
     }
 
     foreach ($f in $PackageObj.Fonts) {
@@ -330,9 +333,40 @@ if ($PackageObj.Paths) {
 ###  Do regs manually
 ###
 
+Write-Debug "REG TIME"
+
 foreach ($r in $PackageObj.reg) {
+  write-Debug "Reg: $($r.key)"
   $r.key = $r.key -replace 'HKEY_CURRENT_USER\\', 'HKCU:\' -replace 'HKEY_LOCAL_MACHINE\\', 'HKLM:\'
   if (!$r.name) { $r.Name = '(Default)' }
   if (!$r.type) { $r.Type = 'String' }
-  New-ItemProperty -Path $r.key -Name $r.name -Value (TemplateStr($r.data))  -PropertyType $r.type -Verbose -Force
+	
+  if (!(Test-Path $r.key)) {
+    New-Item -Path $r.key -Force
+  }
+  New-ItemProperty -LiteralPath $r.key -Name $r.name -Value (TemplateStr($r.data)) -PropertyType $r.type -Verbose -Force
+}
+
+###
+###  Do assocs manually
+###
+
+foreach ($s in $PackageObj.Shortcuts) {
+  if ($s.Assoc) {
+    $ExeName = Split-Path (TemplateStr($s.Target)) -Leaf
+    $AppRegKey = "HKCU:\\SOFTWARE\\Classes\\Applications\\${ExeName}\\shell\\open\\command"
+    if ($s.AssocParam -eq $null) { $s.AssocParam = "`"%1`"" }
+    $OpenCmd = "$(TemplateStr($s.Target)) $($s.AssocParam)"
+    if (!(Test-Path $AppRegKey)) {
+      New-Item -Path $AppRegKey -Force
+    }
+    New-ItemProperty -LiteralPath $AppRegKey -Name "(Default)" -Value $OpenCmd -PropertyType "ExpandString" -Verbose -Force
+  }
+
+  foreach ($ext in $s.Assoc) {
+    $ExtRegKey = "HKCU:\\SOFTWARE\\Classes\\.${ext}\\OpenWithList\\${ExeName}"
+    if (!(Test-Path $ExtRegKey)) {
+      New-Item -Path $ExtRegKey -Force
+    }
+  }
 }

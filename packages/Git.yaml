@@ -1,0 +1,8 @@
+paths:
+  - "{DbxRoot}/GitBashPortable/bin"
+  - "{DbxRoot}/GitBashPortable/mingw64/bin"
+  - "{DbxRoot}/GitBashPortable/usr/bin"
+exec:
+  - "git config --global user.name \"Lev\""
+  - "git config --global user.email lev@me.com"
+  

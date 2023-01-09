@@ -9,6 +9,8 @@ shortcuts:
   - name: "{PkgName} Draw"
     target: "{PkgPath}/LibreOfficeDrawPortable.exe"
     assocparam: " -o \"%1\""
+    assoc: ["pdf"]
   - name: "{PkgName} Writer"
     target: "{PkgPath}/LibreOfficeWriterPortable.exe"
+    assoc: ["doc", "docx", "odt"]
     assocparam: " -o \"%1\""

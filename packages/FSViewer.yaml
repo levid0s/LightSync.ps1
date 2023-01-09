@@ -1,4 +1,4 @@
 shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/{PkgName}.exe"
-    assoc: ["png"]
+    assoc: ["png", "jpg", "jpeg"]

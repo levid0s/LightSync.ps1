@@ -4,3 +4,8 @@ shortcuts:
 folders:
   - path: "{DbxRoot}/Winamp-58portable"
     versionfrom: "{DbxRoot}/Winamp-58portable/winamp.exe"
+reg:
+  - key: "HKCU:\\SOFTWARE\\Classes\\Applications\\Winamp.exe\\shell\\open\\command"
+    name: ""
+    data: "\"{DbxRoot}/Winamp-58portable/winamp.exe\" -o \"%1\""
+    type: "String"
