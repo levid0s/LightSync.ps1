@@ -1,0 +1,7 @@
+files:
+  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python.exe"
+    state: absent
+  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python3.7.exe"
+    state: absent
+  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python3.exe"
+    state: absent
