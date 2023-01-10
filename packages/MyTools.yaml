@@ -19,3 +19,32 @@ shortcuts:
     icon: "{DbxRoot}\\_PACKAGES\\res\\favicon.ico"
   - name: "Dropbox\\Tools"
     target: "{DbxRoot}"
+  - name: "Start Presentation Mode"
+    target: "%SYSTEMROOT%\\System32\\PresentationSettings.exe"
+    args: ["/start"]
+reg:
+# Disable Edge Alt+Tab shit
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "MultiTaskingAltTabFilter"
+    data: 3
+    type: "DWord"
+# Disable Bing Search in Start
+  - key: "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+    name: "DisableSearchBoxSuggestions"
+    data: 1
+    type: "DWord"
+# Enable Run As User Menu
+  - key: "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+    name: "ShowRunAsDifferentUserInStart"
+    data: 1
+    type: "DWord"
+# Enable Mobility Center on Desktop
+  - key: "HKCU:\\Software\\Microsoft\\MobilePC\\AdaptableSettings"
+    name: "SkipBatteryCheck"
+    data: 1
+    type: "DWord"
+  - key: "HKCU:\\Software\\Microsoft\\MobilePC\\MobilityCenter"
+    name: "RunOnDesktop"
+    data: 1
+    type: "DWord"
+
