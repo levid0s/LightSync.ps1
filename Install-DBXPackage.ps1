@@ -200,11 +200,7 @@ if ($AdminNeeded) {
   }
 }
 
-$CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
 
-if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
-  Throw 'Please run:    [PSCredential]$PsDscRunAsCreds = Get-Credential   '
-}
 
 $Config = @{
   AllNodes = @(
@@ -299,13 +295,6 @@ Configuration $PackageNameDSC {
   }
 }
 
-###
-###  Run the DSC
-###
-
-Remove-DscConfigurationDocument -Stage Pending
-Invoke-Expression "$PackageNameDSC -ConfigurationData `$Config -OutputPath `"./mofs/$PackageNameDSC`" "
-Start-DscConfiguration -Wait -Verbose -Path "./mofs/$PackageNameDSC"
 
 ###
 ###  Set Folder comment
@@ -347,6 +336,7 @@ foreach ($r in $PackageObj.reg) {
   New-ItemProperty -LiteralPath $r.key -Name $r.name -Value (TemplateStr($r.data)) -PropertyType $r.type -Verbose -Force
 }
 
+
 ###
 ###  Do assocs manually
 ###
@@ -363,6 +353,16 @@ foreach ($s in $PackageObj.Shortcuts) {
     New-ItemProperty -LiteralPath $AppRegKey -Name "(Default)" -Value $OpenCmd -PropertyType "ExpandString" -Verbose -Force
   }
 
+  if ($s.AssocIcon) {
+    $AppRegKey = "HKCU:\\SOFTWARE\\Classes\\Applications\\${ExeName}\\DefaultIcon"
+    $IconPath = TemplateStr($s.AssocIcon)
+
+    if (!(Test-Path $AppRegKey)) {
+      New-Item -Path $AppRegKey -Force
+    }
+    New-ItemProperty -LiteralPath $AppRegKey -Name "(Default)" -Value $IconPath -PropertyType "ExpandString" -Verbose -Force    
+  }
+
   foreach ($ext in $s.Assoc) {
     $ExtRegKey = "HKCU:\\SOFTWARE\\Classes\\.${ext}\\OpenWithList\\${ExeName}"
     if (!(Test-Path $ExtRegKey)) {
@@ -370,3 +370,18 @@ foreach ($s in $PackageObj.Shortcuts) {
     }
   }
 }
+
+
+###
+###  Run the DSC
+###
+
+$CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
+
+if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
+  Throw 'Please run:    [PSCredential]$PsDscRunAsCreds = Get-Credential   '
+}
+
+Remove-DscConfigurationDocument -Stage Pending
+Invoke-Expression "$PackageNameDSC -ConfigurationData `$Config -OutputPath `"./mofs/$PackageNameDSC`" "
+Start-DscConfiguration -Wait -Verbose -Path "./mofs/$PackageNameDSC"

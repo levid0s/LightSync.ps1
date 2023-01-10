@@ -4,6 +4,7 @@ shortcuts:
     args: ""
     icon: "{PkgPath}/7zFM.exe"
     assoc: ["zip", "7z", "rar"]
+    assocIcon: "{PkgPath}/7z.dll,1"
 folders:
   - path: "{PkgPath}"
     versionfrom: "{PkgPath}/7zFM.exe"
