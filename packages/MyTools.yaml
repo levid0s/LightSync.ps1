@@ -17,11 +17,15 @@ shortcuts:
   - name: "DBX Tools"
     target: "%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\DBXSync"
     icon: "{DbxRoot}\\_PACKAGES\\res\\favicon.ico"
-  - name: "Dropbox\\Tools"
+  - name: "Dropbox - Tools"
     target: "{DbxRoot}"
-  - name: "Start Presentation Mode"
+  - name: "Presentation Mode START"
     target: "%SYSTEMROOT%\\System32\\PresentationSettings.exe"
     args: ["/start"]
+  - name: "Presentation Mode STOP"
+    target: "%SYSTEMROOT%\\System32\\PresentationSettings.exe"
+    args: ["/stop"]
+    icon: "%SYSTEMROOT%\\System32\\PresentationSettings.exe,2"
 reg:
 # Disable Edge Alt+Tab shit
   - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"

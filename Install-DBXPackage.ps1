@@ -7,16 +7,27 @@ param(
   [Parameter(Mandatory = $true)][string]$PackageFile
 )
 
+Function Get-DropboxInstallPath() {
+  $Path = "$env:LOCALAPPDATA\\Dropbox\\info.json"
+
+  If(!(Test-Path $Path)) {
+    Throw "$Path not found. Dropbox not installed?"
+  }
+
+  $data = Get-Content $path |ConvertFrom-Json
+  return $data.personal.path
+}
+
 $InformationPreference = 'Continue'
 $DebugPreference = 'Continue'
 $VerbosePreference = 'Continue'
 
 ${Dry-Run} = $false
 
-# $DropboxRealRoot = "D:\Dropbox"
-$DropboxRealRoot = "C:\Users\Lev\Dropbox"
+$DropboxRealRoot = Get-DropboxInstallPath
+
 $DBXRoot = "N:\Tools"
-$StartMenu = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\DBXSync"
+
 $StartUp = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 
 $SubstFile = "$StartUp\subst-m-n.bat"
@@ -111,6 +122,37 @@ function Add-UserPaths {
   }
 }
 
+function UnderscroreTo-HashTable() {
+  param(
+    [Parameter(Mandatory=$true)][System.Collections.Arraylist]$InputList,
+    [System.Array]$Include=@(),
+    [System.Array]$Exclude=@()
+  )
+
+  [System.Collections.Hashtable]$new=@{}
+
+  Write-Debug "INputList= $InputList"
+  Write-Debug "Keys= $($InputList.GetEnumerator())"
+
+  foreach($k in $InputList.GetEnumerator()) {
+    Write-Debug "Reading $($k.Name)"
+
+    if( $PSBoundParameters.ContainsKey('Include') -and $k.Name -notin $Include) {
+      Write-Debug "Key $($k.Name) not in Include list, skipping."
+      continue
+    }
+    if($Exclude -icontains $k.Name) {
+      Write-Debug "Key $($k.Name) is in Exclude list, skipping."
+      continue
+    }
+
+    $new.Add("_$($k.Name)", $k.value)
+    Write-Debug "Setting _$($k.Name) = $($k.value)"
+  }
+
+  return $new
+}
+
 ###
 ###  Folders
 ###
@@ -177,127 +219,124 @@ InfoTip=$Comment
   }
 }
 
-$PackageObj = Get-Content $PackageFile | ConvertFrom-Yaml
-$PackageName = [System.IO.Path]::GetFileNameWithoutExtension($PackageFile)
-$PackageNameDSC = 'DSC-' + $PackageName -replace '[^0-9a-zA-Z-]', ''
+###
+###  Install Font
+###
 
-Install-ModuleIfNotPresent 'PowerShell-YAML'
-Install-ModuleIfNotPresent 'DSCR_Shortcut'
-Install-ModuleIfNotPresent 'DSCR_FileAssoc'
-Install-ModuleIfNotPresent 'DSCR_Font'
-
-$AdminNeeded = $PackageObj.Shortcuts -ne $null
-
-if ($AdminNeeded) {
-  If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-    # TBC
-    # $ScriptPath = $MyInvocation.MyCommand.Definition
-    # $PsCmd = (Get-ChildItem -Path "$PSHome\pwsh*.exe", "$PSHome\powershell*.exe")[0]
-    # Start-Process "$PsCmd" `
-    #   -Verb runAs `
-    #   -ArgumentList "-File", "$ScriptPath", '-$PackageFile', "$PackageFile"
-    # Break
-  }
-}
-
-
-
-$Config = @{
-  AllNodes = @(
-    @{
-      NodeName                    = 'localhost'
-      PSDscAllowPlainTextPassword = $true
-    }
+function Install-Font() {
+  param(
+    [string]$SourcePath
   )
+  (New-Object -ComObject Shell.Application).Namespace(0x14).CopyHere($SourcePath, 0x14);
 }
 
+###
+###  Create Shortcut
+###
 
-Configuration $PackageNameDSC {
-  Import-DscResource -ModuleName DSCR_Shortcut
-  Import-DscResource -ModuleName DSCR_Font
-  Import-DscResource -ModuleName DSCR_FileAssoc
-  # Import-DscResource -ModuleName xPSDesiredStateConfiguration
+function New-Shortcut() {
+  param(
+    [Parameter(Mandatory = $true)][string]$LnkPath,
+    [Parameter(Mandatory = $true)][string]$TargetExe,
+    [string[]]$Arguments,
+    [string]$WorkingDir,
+    [string]$IconPath,
+    [Parameter()][ValidateSet('Default', 'Minimized', 'Maximized')][string]$WindowStyle = 'Default'
+  )
 
-  Node localhost {
-
-    $i = 0
-    foreach ($s in $PackageObj.Shortcuts) {
-      $i ++
-      $sobj = [System.IO.Path]::GetFileNameWithoutExtension($s.Target)
-      # StartIn in exe's folder by default.
-      
-      $Target = TemplateStr($s.Target)
-
-      if ($s.StartIn -eq $null) { 
-        $StartIn = Split-Path -Path $Target 
-      }
-      else { 
-        $StartIn = TemplateStr($s.StartIn) 
-      }
-
-      cShortcut $sobj {
-        Path             = "$StartMenu\$(TemplateStr($s.Name)) DBX.lnk"
-        Target           = $Target
-        Arguments        = TemplateStr($s.Args)
-        Icon             = TemplateStr($s.Icon)
-        WorkingDirectory = $StartIn
-        Ensure           = "Present"
-      }
-
-      # foreach ($ext in $s.Assoc) {
-      #   $aobj = "Assoc-$i-$ext"
-      #   $assocCmd = $s.Target + $s.AssocParam
-      #   cFileAssoc $aobj {
-      #     Extension            = $ext
-      #     FileType             = "LibreOfficeDBX." + $ext
-      #     Command              = $assocCmd
-      #     PsDscRunAsCredential = ($PsDscRunAsCreds)
-      #     Ensure               = "Present"
-      #   }        
-      # }
-    }
-
-    foreach ($f in $PackageObj.Fonts) {
-      $fobj = $f.name
-      cFont $fobj {
-        FontName = TemplateStr($f.name)
-        FontFile = TemplateStr($f.path)
-        Ensure   = 'Present'
-      }    
-    }
-
-    $i = 0
-    # foreach ($r in $PackageObj.reg) {
-    #   $robj ++
-    #   Registry $robj {
-    #     Key       = $r.key
-    #     ValueName = $r.valuename
-    #     ValueData = TemplateStr($r.valuedata)
-    #     ValueType = $r.valuetype
-    #     Force     = $true
-    #     PsDscRunAsCredential = ($PsDscRunAsCreds)
-    #     Ensure    = "Present"  # You can also set Ensure to "Absent"
-    #   }      
-    # }
-
-    # $pObj = 1
-    # foreach ($p in $PackageObj.Paths) {
-    #   xEnvironment $pObj {
-    #     Name                 = 'Path'
-    #     Value                = TemplateStr($p)
-    #     Path                 = $true
-    #     Ensure               = 'Present'
-    #     PsDscRunAsCredential = ($PsDscRunAsCreds)
-    #     Target               = 'Process'
-    #   }      
-    # }
-
+  $bitWindowStyle = @{
+    Default   = 1;
+    Maximized = 3;
+    Minimized = 7
   }
+ 
+  if($Arguments) {
+    Write-Debug "[New-Shortcut]: Arguments supplied: $Arguments"
+  }
+  $WshShell = New-Object -comObject WScript.Shell
+  $Shortcut = $WshShell.CreateShortcut($LnkPath)
+  $Shortcut.TargetPath = $TargetExe
+  $Shortcut.Arguments = $Arguments -join " "
+  $Shortcut.IconLocation = TemplateStr($IconPath)
+  $Shortcut.WorkingDirectory = TemplateStr($WorkingDir)
+  $Shortcut.WindowStyle = $bitWindowStyle[$WindowStyle]
+  $Shortcut.Save()
+}
+
+function New-DBXShortcut() {
+  param(
+    [Parameter(Mandatory = $true)][string]$_Name,
+    [Parameter()][ValidateSet('Programs-DBX', 'Startup')][string]$_Parent='Programs-DBX',
+    [Parameter(Mandatory = $true)][string]$_Target,
+    [Parameter()][ValidateSet('Default', 'Minimized', 'Maximized')][string]$_WindowStyle = 'Default',
+    [string]$_Icon,
+    [string[]]$_Args,
+    [string]$_StartIn
+  )
+
+  if($_Args) {
+    Write-Debug "Arguments supplied: $_Args"
+  }
+
+  $ParentPath = switch ($_Parent) {
+    # Wshshell SpecialFolders
+    "Programs-DBX" { [environment]::getfolderpath("Programs") + "\DBXSync" }
+    "Startup" { [environment]::getfolderpath("Startup") }
+  }
+
+  $StartIn = switch ($_StartIn) {
+    $null { Split-Path -Path TemplateStr($_Target) } # Start in the Target Exe's folder by default
+    default { TemplateStr($s._StartIn) }
+  }
+
+  $Target = TemplateStr($_Target)
+
+  $IconPath = TemplateStr($_Icon)
+  if($IconPath -notmatch ",\d+$") { 
+    $IconPath = "${IconPath},0"
+  }
+
+  New-Shortcut `
+    -LnkPath "${ParentPath}\$(TemplateStr($_Name)) DBX.lnk" `
+    -TargetExe $Target `
+    -Arguments $_Args `
+    -WorkingDir $StartIn `
+    -IconPath $IconPath `
+    -WindowStyle $_WindowStyle `
 }
 
 
 ###
-###  Set Folder comment
+###  Program Start
+###
+
+Install-ModuleIfNotPresent 'PowerShell-YAML'
+
+$PackageObj = Get-Content $PackageFile | ConvertFrom-Yaml
+$PackageName = [System.IO.Path]::GetFileNameWithoutExtension($PackageFile)
+
+###
+###  Create Shortcuts
+###
+
+foreach ($s in $PackageObj.Shortcuts) {
+
+  $ht = UnderscroreTo-HashTable -InputList $s -Include @('Name', 'Parent', 'Target', 'WindowStyle', 'Icon', 'Args', 'StartIn')
+
+  New-DBXShortcut @ht
+
+}
+
+###
+###  Install Font - TBC
+###
+
+foreach ($f in $PackageObj.Fonts) {
+  Install-Font -SourcePath TemplateStr($f.path)
+}
+
+###
+###  Set Folder Comments
 ###
 
 foreach ($f in $PackageObj.Folders) {
@@ -309,7 +348,7 @@ foreach ($f in $PackageObj.Folders) {
 }
 
 ###
-###  Do the paths manually
+###  ADD PATHs
 ###
 
 if ($PackageObj.Paths) {
@@ -319,7 +358,7 @@ if ($PackageObj.Paths) {
 }
 
 ###
-###  Do regs manually
+###  Create Registry Entries
 ###
 
 Write-Debug "REG TIME"
@@ -376,12 +415,12 @@ foreach ($s in $PackageObj.Shortcuts) {
 ###  Run the DSC
 ###
 
-$CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
+# $CredsNeeded = $PackageObj.Shortcuts.Assoc -ne $null
 
-if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
-  Throw 'Please run:    [PSCredential]$PsDscRunAsCreds = Get-Credential   '
-}
+# if ($CredsNeeded -and $PsDscRunAsCreds -eq $null) {
+#   Throw 'Please run:    [PSCredential]$PsDscRunAsCreds = Get-Credential   '
+# }
 
-Remove-DscConfigurationDocument -Stage Pending
-Invoke-Expression "$PackageNameDSC -ConfigurationData `$Config -OutputPath `"./mofs/$PackageNameDSC`" "
-Start-DscConfiguration -Wait -Verbose -Path "./mofs/$PackageNameDSC"
+# Remove-DscConfigurationDocument -Stage Pending
+# Invoke-Expression "$PackageNameDSC -ConfigurationData `$Config -OutputPath `"./mofs/$PackageNameDSC`" "
+# Start-DscConfiguration -Wait -Verbose -Path "./mofs/$PackageNameDSC"
