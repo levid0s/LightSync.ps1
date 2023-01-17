@@ -51,4 +51,13 @@ reg:
     name: "RunOnDesktop"
     data: 1
     type: "DWord"
-
+# Taskbar - Enable List View
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Taskband"
+    name: "NumThumbnails"
+    data: 0
+    type: "DWord"
+# Taskbar - Reduce Hover Time
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "ExtendedUIHoverTime"
+    data: 1
+    type: "DWord"
