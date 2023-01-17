@@ -27,11 +27,6 @@ shortcuts:
     args: ["/stop"]
     icon: "%SYSTEMROOT%\\System32\\PresentationSettings.exe,2"
 reg:
-# Disable Edge Alt+Tab shit
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "MultiTaskingAltTabFilter"
-    data: 3
-    type: "DWord"
 # Disable Bing Search in Start
   - key: "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
     name: "DisableSearchBoxSuggestions"
@@ -51,6 +46,11 @@ reg:
     name: "RunOnDesktop"
     data: 1
     type: "DWord"
+# Disable Edge Alt+Tab shit
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "MultiTaskingAltTabFilter"
+    data: 3
+    type: "DWord"
 # Taskbar - Enable List View
   - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Taskband"
     name: "NumThumbnails"
@@ -59,5 +59,65 @@ reg:
 # Taskbar - Reduce Hover Time
   - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
     name: "ExtendedUIHoverTime"
+    data: 1
+    type: "DWord"
+# Show Hidden
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "Hidden"
+    data: 1
+    type: "DWord"
+# Don't Hide File Extensions
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "HideFileExt"
+    data: 0
+    type: "DWord"
+# Show recently opened Documents from the Start menu /Start Run    
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "Start_TrackDocs"
+    data: 1
+    type: "DWord"
+# Don't add Games shortcut to the start menu
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "Start_ShowMyGames"
+    data: 0
+    type: "DWord"    
+# Hide Cortana
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "OnboardUnpinCortana"
+    data: 1
+    type: "DWord"
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "ShowCortanaButton"
+    data: 0
+    type: "DWord"
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "ShowTaskViewButton"
+    data: 0
+    type: "DWord"
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "ShowSyncProviderNotifications"
+    data: 0
+    type: "DWord"
+# Start Menu Speed
+  - key: "HKCU:\\Control Panel\\Desktop"
+    name: "MenuShowDelay"
+    data: 0
+    type: "DWord"
+# Show all folders in Explorer including Recycle Bin, Desktop, Control Panel
+  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "NavPaneShowAllFolders"
+    data: 1
+    type: "DWord"
+# Disable Telemetry in Microsoft Office
+  - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
+    name: "Enablelogging"
+    data: 0
+    type: "DWord"
+  - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
+    name: "EnableUpload"
+    data: 0
+    type: "DWord"
+  - key: "HKCU:\\Software\\Microsoft\\Office\\Common\\ClientTelemetry"
+    name: "DisableTelemetry"
     data: 1
     type: "DWord"
