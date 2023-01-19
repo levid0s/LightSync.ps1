@@ -3,3 +3,12 @@ shortcuts:
     target: "{PkgPath}/code.exe"
 paths:
   - "{PkgPath}"
+reg:
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here"
+    name: "Icon"
+    data: "{PkgPath}/code.exe"
+    type: "String"
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here\\command"
+    name: ""
+    data: "\"{PkgPath}/code.exe\" \"%1\""
+    type: "String"

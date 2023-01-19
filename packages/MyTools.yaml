@@ -12,6 +12,7 @@ paths:
   - "{DbxRoot}/flac-1.3.2-win/win64"
   - "{DbxRoot}/go/bin"
   - "{DbxRoot}/Graphviz/bin"
+  - "{DbxRoot}/PS-Gcloud"
   - "{DbxRoot}"
 shortcuts:
   - name: "DBX Tools"
@@ -101,12 +102,12 @@ reg:
 # Start Menu Speed
   - key: "HKCU:\\Control Panel\\Desktop"
     name: "MenuShowDelay"
-    data: 0
+    data: 10
     type: "DWord"
 # Show all folders in Explorer including Recycle Bin, Desktop, Control Panel
   - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
     name: "NavPaneShowAllFolders"
-    data: 1
+    data: 0
     type: "DWord"
 # Disable Telemetry in Microsoft Office
   - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
