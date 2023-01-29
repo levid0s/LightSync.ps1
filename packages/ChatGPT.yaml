@@ -1,0 +1,23 @@
+shortcuts:
+  - name: "{PkgName}"
+    target: "{PkgPath}/{PkgName}.exe"
+folders:
+  - path: "{PkgPath}"
+    versionfrom: "{PkgPath}/{PkgName}.exe"
+reg:
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\lencx\\ChatGPT"
+    name: "InstallDir"
+    data: "{PkgPath}\\"
+    type: "String"
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\lencx\\ChatGPT"
+    name: "Desktop Shortcut"
+    data: 1
+    type: "DWord"
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\lencx\\ChatGPT"
+    name: "Start Menu Shortcut"
+    data: 1
+    type: "DWord"
+  - key: "HKEY_CURRENT_USER\\SOFTWARE\\lencx\\ChatGPT"
+    name: "Uninstaller Shortcut"
+    data: 1
+    type: "DWord"

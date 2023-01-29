@@ -3,6 +3,36 @@
 ###    ie do stuff with the OS
 ###
 
+function Write-DebugLog {
+  param(
+    [string]$Message
+  )
+  $Caller = (Get-PSCallStack)[1].Command
+  $Depth = (Get-PSCallStack).Count - 3 # Main script is 0
+  
+  if ($Depth -gt $DEBUGDEPTH) { return }
+  if (!$DEBUGDEPTH) { $MaxDepth = 4 * 2 }
+  else { $MaxDepth = $DEBUGDEPTH * 2 }
+
+  $FrontPadChar = '>'
+  $FrontPadVal = $Depth * 2
+  $FrontPadding = $FrontPadChar * $FrontPadVal
+  # $FrontPadding = $FrontPadding.PadRight($MaxDepth, ' ')
+  $MidPadChar = '>'
+  $MidPadVal = $Depth * 0
+  $MidPadding = $MidPadChar * $MidPadVal + ' ' * [math]::Sign($MidPadVal)
+
+  Write-Debug "${FrontPadding} [ ${Caller} ]: ${MidPadding}${Message}"
+}
+
+function IsAdmin {
+  <#
+  Returns True if the script is running with elevated privileges
+  #>
+  $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+  $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)  
+}
+
 ###
 ###  Registry Functions
 ###
@@ -38,7 +68,7 @@ function Get-RegValue {
   $Name = Split-Path $FullPath -Leaf
 
   # Get-ItemPropertyValue has a bug: https://github.com/PowerShell/PowerShell/issues/5906
-  $Value = Get-ItemProperty -Path $Path -Name $Name -ErrorAction $ErrorAction | Select-Object -ExpandProperty $Name
+  $Value = Get-ItemProperty -LiteralPath $Path -Name $Name -ErrorAction $ErrorAction | Select-Object -ExpandProperty $Name
 
   Return $Value
 }
@@ -94,7 +124,7 @@ function Set-RegValue {
   $Name = Split-Path $FullPath -Leaf
 
   if ($Force) {
-    if (!(Test-Path $Path)) {
+    if (!(Test-Path -LiteralPath $Path)) {
       New-Item -Path $Path -Force      
     }
   }
@@ -106,15 +136,15 @@ function Set-RegValue {
     'QWord' { $ValueConv = [System.Convert]::ToUInt64($Value[0]) }
   }
   
-  $CheckValues = (Get-ItemProperty $Path).PSObject.Properties
+  $CheckValues = (Get-ItemProperty -LiteralPath $Path).PSObject.Properties
   if ($CheckValues.Name -contains $Name) {
     if ($CheckValues[$Name].Value -eq $ValueConv) {
-      Write-Debug "[Set-RegValue]: Value already set: $Path\$Name = $ValueConv ($Type)"
+      Write-DebugLog "Value already set: $Path\$Name = $ValueConv ($Type)"
       Return
     }
   }
-  New-ItemProperty -Path $Path -Name $Name -Value $ValueConv -PropertyType $Type -Force | Out-Null
-  Write-Debug "[Set-RegValue]: Writing to registry: $Path\$Name = $ValueConv ($Type)"
+  New-ItemProperty -LiteralPath $Path -Name $Name -Value $ValueConv -PropertyType $Type -Force | Out-Null
+  Write-DebugLog "Writing to registry: $Path\$Name = $ValueConv ($Type)"
 }
 
 
@@ -144,7 +174,7 @@ function New-Shortcut() {
   }
  
   if ($Arguments) {
-    Write-Debug "[New-Shortcut]: Arguments supplied: $Arguments"
+    Write-DebugLog "Arguments supplied: $Arguments"
   }
   $WshShell = New-Object -comObject WScript.Shell
   $Shortcut = $WshShell.CreateShortcut($LnkPath)
@@ -240,12 +270,12 @@ function Add-UserPaths {
 
   [String[]]$existingPathsUser = Get-EnvPathsArr('User')
 
-  $NewPathsDiff = Compare-Object -ReferenceObject $existingPathsUser -DifferenceObject $NewPaths | `
+  $NewPathsDiff = Compare-Object -ReferenceObject $existingPathsUser -DifferenceObject $Paths | `
     Where-Object SideIndicator -eq '=>' | `
     Select-Object -ExpandProperty InputObject
 
   if ($NewPathsDiff.Count -eq 0) {
-    Write-Debug "[Add-UserPaths]: Paths ``$NewPaths`` already present, no changes needed."    
+    Write-DebugLog "Paths ``$Paths`` already present, no changes needed."    
     return
   }
 
@@ -255,7 +285,7 @@ function Add-UserPaths {
     Write-Verbose "DRY-RUN: Setting User PATH to $newEnvTargetUser"
   }
   else {
-    Write-Debug "[Add-UserPaths]: Adding the following paths to user %PATH%:`n- $($NewPathsDiff -join "`n- ")`n"
+    Write-DebugLog "Adding the following paths to user %PATH%:`n- $($NewPathsDiff -join "`n- ")`n"
     [Environment]::SetEnvironmentVariable("Path", "$newEnvTargetUser", [System.EnvironmentVariableTarget]::User)
   }
 }
@@ -286,13 +316,13 @@ function Remove-UserPaths {
   if ($removePaths.Count -gt 0) {
     $newUserEnvString = $newPaths -join ';'    
 
-    Write-Debug "[Remove-UserPaths]: Removing the following paths from user %PATH%:`n- $($removePaths -join "`n- ")`n"
+    Write-DebugLog "Removing the following paths from user %PATH%:`n- $($removePaths -join "`n- ")`n"
     Write-Verbose "[Remove-UserPaths]: Updating user %PATH% to:`n- $($remainingPaths -join "`n- ")`n"
 
     [Environment]::SetEnvironmentVariable("Path", "$newUserEnvString", [System.EnvironmentVariableTarget]::User)
   }
   else {
-    Write-Debug "[Remove-UserPaths]: No paths to remove from user %PATH%."
+    Write-DebugLog "No paths to remove from user %PATH%."
   }
 }
 
@@ -308,12 +338,12 @@ function Update-PathsInShell {
   $diff = Compare-Object -ReferenceObject $pathsInRegistry -DifferenceObject $pathsInShell
 
   if (!$diff) {
-    Write-Debug "[Refresh-PahtsInShell]: %PATH% in shell already up to date."
+    Write-DebugLog "%PATH% in shell already up to date."
     return
   }
 
-  Write-Verbose "[Refresh-PahtsInShell]: Updates to %PATH% detected:`n`n $($diff | Out-String) `n"
-  Write-Debug "[Refresh-PahtsInShell]: Refreshing %PATH% in current shell.."
+  Write-Verbose "Updates to %PATH% detected:`n`n $($diff | Out-String) `n"
+  Write-DebugLog "Refreshing %PATH% in current shell.."
   $env:Path = $pathsInRegistry -join ';'
 }
 
@@ -354,8 +384,8 @@ InfoTip=$Comment
   else {
     # Update the File
     $Content = (Get-Content $IniPath ) -as [Collections.ArrayList]
-    Write-Debug "Content of ${IniPath}:"
-    Write-Debug [String[]]$Content
+    Write-DebugLog "Contents of ${IniPath}:"
+    Write-Verbose [String[]]$Content
 
     $HeaderLineNumber = $Content | Select-String -Pattern  "^\[\.ShellClassInfo\]"  | Select-Object -First 1 -ExpandProperty LineNumber
     If (!$HeaderLineNumber) {
@@ -609,7 +639,7 @@ function Convert-ObjectToString {
 
   end {
     if ($all[0] -is [hashtable]) {
-      Write-Debug "[hashtable] detected"
+      Write-DebugLog "[hashtable] detected"
       $all = $all | ForEach-Object { [PSCustomObject]$_ }
     }
     if ($all.Count -gt 0) {
@@ -700,12 +730,12 @@ function Update-Shortcuts() {
       default { $_ }
     }
 
-    $Unrecognized = $task.keys | Where-Object { $_ -notin @('name', 'target', 'startin', 'params', 'icon', 'assoc', 'assocIcon', 'assocparam') }
+    $Unrecognized = $task.keys | Where-Object { $_ -notin @('name', 'target', 'startin', 'params', 'icon', 'assoc', 'assocIcon', 'assocparam', 'tindex', 'PkgPath', 'PkgName') }
     if ($Unrecognized) {
       Write-Warning "Unrecognized keys in task $($task.Name): $Unrecognized"
     }
 
-    Write-Debug "[Update-Shortcuts]: [New-Shortcut]: LinkPath: $LinkPath, Target: $Target, Params: $Params, StartIn: $StartIn, IconPath: $IconPath, WindowStyle: $WindowStyle"
+    Write-DebugLog "LinkPath: $LinkPath, Target: $Target, Params: $Params, StartIn: $StartIn, IconPath: $IconPath, WindowStyle: $WindowStyle"
     New-Shortcut `
       -LnkPath  $LinkPath `
       -TargetExe $Target `
@@ -740,7 +770,7 @@ function Get-LightSyncPackageData {
     $PackageFiles = (Get-LightSyncPackageNames) -replace '^', "$PackageRoot\"
   }
 
-  Write-Debug "[Get-LightSyncPackageData]: Retrieved Package Names: $PackageNames"
+  Write-DebugLog "Retrieved Package Names: $PackageNames"
   $AllPackagesObj = @()
   $Index = 0
   $tindex = 0
@@ -833,7 +863,7 @@ function Update-FileAssocs {
     $Target = TemplateStr -InputString $a.Target -PackageName $a.PkgName
     $assocIcon = TemplateStr -InputString $a.AssocIcon -PackageName $a.PkgName
 
-    Write-Debug "[Update-FileAssocs]: Creating assoc for $($a.assoc) -> ``$Target`` : ``$($a.AssocParam)``"
+    Write-DebugLog "Creating assoc for $($a.assoc) -> ``$Target`` : ``$($a.AssocParam)``"
     New-FileAssoc -Extension $a.assoc -ExePath $Target -Params $a.AssocParam -IconPath $assocIcon
   }
 }
@@ -851,12 +881,12 @@ function Update-Paths {
   $RemovePaths = $Paths | Where-Object { $_.state -eq 'absent' } | ForEach-Object { TemplateStr -InputString $_.Path -PackageName $_.PkgName }
 
   if ($AddPaths) {
-    Write-Debug "[Update-Paths]: Adding paths: $AddPaths"
+    Write-DebugLog "Adding paths: $AddPaths"
     Add-UserPaths -Paths $AddPaths
   }
 
   if ($RemovePaths) {
-    Write-Debug "[Update-Paths]: Removing paths: $RemovePaths - TBC"
+    Write-DebugLog "Removing paths: $RemovePaths - TBC"
   }
 }
 
@@ -876,12 +906,17 @@ Function Update-Regs {
   
   foreach ($r in $Regs) {
     $Key = TemplateStr -InputString $r.key -PackageName $r.PkgName
-    $Value = TemplateStr -InputString $r.value -PackageName $r.PkgName
+    $Name = TemplateStr -InputString $r.name -PackageName $r.PkgName
     $Type = TemplateStr -InputString $r.type -PackageName $r.PkgName
     $Data = TemplateStr -InputString $r.data -PackageName $r.PkgName
 
-    Write-Debug "[Update-Regs]: Creating registry key: $Key"
-    Set-RegValue -FullPath "${Key}\${Value}" -Value $Data -Type $Type -Force 
+    if ($r.Admin -and !$ISADMIN) {
+      Write-Warning "[Update-Regs]: Skipping registry key: $($r.key)\$($r.name) = $($r.data) ($($r.type)) - Admin required"
+      continue
+    }
+
+    Write-DebugLog "Creating registry key: $Key\$Name = $Data ($Type)"
+    Set-RegValue -FullPath "${Key}\${Name}" -Value $Data -Type $Type -Force 
   }
 }
 
@@ -892,7 +927,7 @@ function Update-Fonts {
 
   foreach ($f in $Fonts) {
     $FontPath = TemplateStr -InputString $f.FontPath -PackageName $f.PkgName
-    Write-Debug "[Update-Fonts]: Installing font: $FontPath"
+    Write-DebugLog "Installing font: $FontPath"
     Install-Font SourcePath $FontPath
   }
 }
@@ -903,16 +938,16 @@ function Invoke-LightSync {
   )
 
   $packages = Get-LightSyncPackageData -PackageFile $PackageFile
-  Write-Debug "[Invoke-LightSync]: Retrieved Packages: $($packages | ConvertTo-Yaml)"
+  Write-Verbose "[Invoke-LightSync]: Retrieved Packages: $($packages | ConvertTo-Yaml)"
   # Isnullorempty
   if (!([string]::IsNullOrEmpty($Action))) {
     $packages = @{ $Action = ($packages | Where-Object { $_[$Action] }) }
   }
   foreach ($package in $packages) {
     $tasks = $package.Keys | Where-Object { $_ -notin @('PkgName', 'PkgPath') }
-    Write-Debug "[Invoke-LightSync]: Tasks for $($package.PkgName): $tasks"
+    Write-DebugLog "Tasks for $($package.PkgName): $tasks"
     foreach ($task in $tasks) {
-      Write-Debug "[Invoke-LightSync]: >>>> Running task $task for $($package.PkgName) : $($package.$task)"
+      Write-DebugLog "Running task $task for $($package.PkgName) : $($package.$task)"
       switch ($task) {
         "shortcuts" {
           Update-Shortcuts `
@@ -968,3 +1003,5 @@ function Invoke-LightSync {
 $STARTUP = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 $LSDREG = "HKEY_CURRENT_USER\SOFTWARE\LightSync"
 $LIGHTSYNCROOT = (Get-LighSyncDrivePath).DrivePath
+$ISADMIN = IsAdmin
+# $DEBUGDEPTH - to set externally for the level of logging to display

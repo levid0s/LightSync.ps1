@@ -13,6 +13,8 @@ param(
 
 . $PSScriptRoot/LightSyncHelper.ps1
 
+Write-DebugLog "Starting script"
+
 if ($Install) {
   Install-Dependencies
   Invoke-PackagesWizard
@@ -30,4 +32,4 @@ Invoke-LightSync -PackageFile $PackageFile
 
 Update-PathsInShell
 
-
+Write-DebugLog "Exiting"

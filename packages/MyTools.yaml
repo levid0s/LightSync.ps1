@@ -114,10 +114,12 @@ reg:
     name: "Enablelogging"
     data: 0
     type: "DWord"
+    admin: true
   - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
     name: "EnableUpload"
     data: 0
     type: "DWord"
+    admin: true
   - key: "HKCU:\\Software\\Microsoft\\Office\\Common\\ClientTelemetry"
     name: "DisableTelemetry"
     data: 1
