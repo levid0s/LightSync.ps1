@@ -1,6 +1,7 @@
 shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/notepad++.exe"
+    icon: "{PkgPath}/notepad++.exe"
     assoc: ["txt"]
     assocparam: ["\"%1\""]
 reg:

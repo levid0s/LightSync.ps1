@@ -1,3 +1,4 @@
 shortcuts:
   - name: "Putty"
     target: "{PkgPath}/{PkgName}.exe"
+    icon: "{PkgPath}/App/AppInfo/appicon.ico"

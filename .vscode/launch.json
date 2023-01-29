@@ -8,8 +8,11 @@
       "name": "PowerShell: Launch Current File",
       "type": "PowerShell",
       "request": "launch",
-      "script": "${file}",
-      // "args": ["-PackageFile","./packages/Notepad++.yaml"]
+      "script": "./LightSync.ps1",
+      "args": [
+        // "-Action",
+        // "paths"
+      ]
     }
   ]
 }
