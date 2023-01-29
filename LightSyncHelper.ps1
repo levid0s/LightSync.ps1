@@ -1,15 +1,11 @@
-$STARTUP = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
-$LSDREG = "HKEY_CURRENT_USER\SOFTWARE\LightSync"
-Set-Variable -Name LIGHTSYNCROOT -Value (Get-LighSyncDrivePath).DrivePath -Option Constant -Scope Global -Force
-
 ###
 ###  Low Level Functions
 ###    ie do stuff with the OS
 ###
 
-##
-##  Registry Functions
-##
+###
+###  Registry Functions
+###
 
 function Get-RegValue {
   <#
@@ -42,7 +38,7 @@ function Get-RegValue {
   $Name = Split-Path $FullPath -Leaf
 
   # Get-ItemPropertyValue has a bug: https://github.com/PowerShell/PowerShell/issues/5906
-  $Value = Get-ItemProperty -Path $Path -Name $Name -ErrorAction $ErrorAction | select -ExpandProperty $Name
+  $Value = Get-ItemProperty -Path $Path -Name $Name -ErrorAction $ErrorAction | Select-Object -ExpandProperty $Name
 
   Return $Value
 }
@@ -109,9 +105,18 @@ function Set-RegValue {
     'DWord' { $ValueConv = [System.Convert]::ToUInt32($Value[0]) }
     'QWord' { $ValueConv = [System.Convert]::ToUInt64($Value[0]) }
   }
+  
+  $CheckValues = (Get-ItemProperty $Path).PSObject.Properties
+  if ($CheckValues.Name -contains $Name) {
+    if ($CheckValues[$Name].Value -eq $ValueConv) {
+      Write-Debug "[Set-RegValue]: Value already set: $Path\$Name = $ValueConv ($Type)"
+      Return
+    }
+  }
   New-ItemProperty -Path $Path -Name $Name -Value $ValueConv -PropertyType $Type -Force | Out-Null
   Write-Debug "[Set-RegValue]: Writing to registry: $Path\$Name = $ValueConv ($Type)"
 }
+
 
 ##
 ##  Shortcuts
@@ -223,14 +228,14 @@ function Add-UserPaths {
   Add additional paths to the USER scope PATH environment variable.
   .DESCRIPTION
   This function adds paths to the user's PATH environment variable. It does not remove any existing paths.
-  .PARAMETER NewPaths
-  The paths to add to the user PATH environment variable.
+  .PARAMETER Paths
+  Array of string representing paths to add to the user's %PATH% environment variable.
   .EXAMPLE
-  Add-UserPaths -NewPaths 'C:\Program Files\Git\cmd', 'C:\Program Files\Git\usr\bin'
+  Add-UserPaths -Paths 'C:\Program Files\Git\cmd', 'C:\Program Files\Git\usr\bin'
   #>
 
   param(
-    [string[]]$NewPaths
+    [string[]]$Paths
   )
 
   [String[]]$existingPathsUser = Get-EnvPathsArr('User')
@@ -246,14 +251,70 @@ function Add-UserPaths {
 
   $newEnvTargetUser = ($existingPathsUser + $NewPathsDiff) -join ';'
 
-  Write-Debug "[Add-UserPaths]: Adding the following paths to user %PATH%:`n- $($NewPathsDiff -join "`n- ")`n"
-
-  if (${Dry-Run} -eq $false) {
-    [Environment]::SetEnvironmentVariable("Path", "$newEnvTargetUser", [System.EnvironmentVariableTarget]::User)
-  }
-  else {
+  if (${Dry-Run} -eq $true) {
     Write-Verbose "DRY-RUN: Setting User PATH to $newEnvTargetUser"
   }
+  else {
+    Write-Debug "[Add-UserPaths]: Adding the following paths to user %PATH%:`n- $($NewPathsDiff -join "`n- ")`n"
+    [Environment]::SetEnvironmentVariable("Path", "$newEnvTargetUser", [System.EnvironmentVariableTarget]::User)
+  }
+}
+
+function Remove-UserPaths {
+  <#
+  .SYNOPSIS
+  Remove paths from the USER scope PATH environment variable.
+  .PARAMETER Paths
+  The paths to remove from the user PATH environment variable.
+  .EXAMPLE
+  Remove-UserPaths -Paths @('C:\Program Files\Git\cmd', 'C:\Program Files\Git\usr\bin')
+  #>
+
+  param(
+    [string[]]$Paths
+  )
+
+  [String[]]$existingPathsUser = Get-EnvPathsArr('User')
+
+  $remainingPaths = Compare-Object -ReferenceObject $existingPathsUser -DifferenceObject $Paths | `
+    Where-Object SideIndicator -eq '<=' | `
+    Select-Object -ExpandProperty InputObject
+
+  $removePaths = Compare-Object -ReferenceObject $existingPathsUser -DifferenceObject $installPaths -ExcludeDifferent -IncludeEqual | `
+    Select-Object -ExpandProperty InputObject
+
+  if ($removePaths.Count -gt 0) {
+    $newUserEnvString = $newPaths -join ';'    
+
+    Write-Debug "[Remove-UserPaths]: Removing the following paths from user %PATH%:`n- $($removePaths -join "`n- ")`n"
+    Write-Verbose "[Remove-UserPaths]: Updating user %PATH% to:`n- $($remainingPaths -join "`n- ")`n"
+
+    [Environment]::SetEnvironmentVariable("Path", "$newUserEnvString", [System.EnvironmentVariableTarget]::User)
+  }
+  else {
+    Write-Debug "[Remove-UserPaths]: No paths to remove from user %PATH%."
+  }
+}
+
+function Update-PathsInShell {
+  <#
+  .SYNOPSIS
+  Refresh the PATH environment variable in the current shell.
+  #>
+
+  $pathsInRegistry = Get-EnvPathsArr -Scope All
+  $pathsInShell = $env:PATH -split ';'
+
+  $diff = Compare-Object -ReferenceObject $pathsInRegistry -DifferenceObject $pathsInShell
+
+  if (!$diff) {
+    Write-Debug "[Refresh-PahtsInShell]: %PATH% in shell already up to date."
+    return
+  }
+
+  Write-Verbose "[Refresh-PahtsInShell]: Updates to %PATH% detected:`n`n $($diff | Out-String) `n"
+  Write-Debug "[Refresh-PahtsInShell]: Refreshing %PATH% in current shell.."
+  $env:Path = $pathsInRegistry -join ';'
 }
 
 ##
@@ -362,62 +423,57 @@ function Install-ModuleIfNotPresent {
   }
 }
 
-function UnderscroreTo-HashTable() {
-  <#
-  .SYNOPSIS
-  An internal function to generate dynamic parameters based on the YAML object's members, and pass them through to the next PowerShell function.
-  .DESCRIPTION
-  This function takes an object and converts it to a hashtable, prepending an underscore to each key.
-  .PARAMETER InputList
-  The keys of the yaml object that will be converted to hashtable
-  .PARAMETER Include
-  An array of keys to include in the output hashtable. If specified, only keys in this array will be included.
-  .PARAMETER Exclude
-  An array of keys to exclude from the output hashtable if they are present in the input object.
-  .EXAMPLE
-  UnderscroreTo-HashTable -InputList $yaml -Include @("Name", "Version")
-  #>
-  param(
-    [Parameter(Mandatory = $true)][System.Collections.Arraylist]$InputList,
-    [System.Array]$Include = @(),
-    [System.Array]$Exclude = @()
-  )
-
-  [System.Collections.Hashtable]$new = @{}
-
-  Write-Debug "INputList= $InputList"
-  Write-Debug "Keys= $($InputList.GetEnumerator())"
-
-  foreach ($k in $InputList.GetEnumerator()) {
-    Write-Debug "Reading $($k.Name)"
-
-    if ( $PSBoundParameters.ContainsKey('Include') -and $k.Name -notin $Include) {
-      Write-Debug "Key $($k.Name) not in Include list, skipping."
-      continue
-    }
-    if ($Exclude -icontains $k.Name) {
-      Write-Debug "Key $($k.Name) is in Exclude list, skipping."
-      continue
-    }
-
-    $new.Add("_$($k.Name)", $k.value)
-    Write-Debug "Setting _$($k.Name) = $($k.value)"
-  }
-
-  return $new
-}
-
 
 ###
 ###  High Level Functions
 ###
+
+function Register-LightSyncScheduledTask {
+  param(
+    [string]$ScriptPath
+  )
+
+  $TaskName = 'LightSync.sh'
+
+  if (!($ScriptPath)) {
+    Throw "This script must be run from a file, not from the console."
+  }
+
+  Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue -OutVariable TaskExists
+
+  $action = New-ScheduledTaskAction -Execute 'Powershell.exe' `
+    -Argument "-WindowStyle Hidden $ScriptPath" 
+  
+  $t1 = New-ScheduledTaskTrigger -Daily -At 01:00
+  $t2 = New-ScheduledTaskTrigger -Once -At 01:00 `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Hours 23 -Minutes 55)
+  $t1.Repetition = $t2.Repetition
+    
+  # $trigger = New-ScheduledTaskTrigger `
+  #   -Once `
+  #   -At (Get-Date) `
+  #   -RepetitionInterval (New-TimeSpan -Minutes 15) `
+  #   -RepetitionDuration ([System.TimeSpan]::MaxValue)
+  if (!$TaskExists) {
+    Register-ScheduledTask -Action $action -Trigger $t1 -TaskName "LightSync.sh" -Description "Light Profile Syncing Project"
+  }
+  else {
+    Set-ScheduledTask -TaskName $TaskName -Action $action -Trigger $t1
+  }
+  
+}
+
+function Get-ScriptPath {
+  return $MyInvocation.MyCommand.Source
+}
 
 function Install-Dependencies {
   Install-ModuleIfNotPresent 'PowerShell-YAML'
   Install-ModuleIfNotPresent 'PSMenu'
 }
 
-function Install-LightSync {
+function Invoke-PackagesWizard {
   $packages = Get-ChildItem "$PSScriptRoot/packages/*.yaml"
   $packages = $packages | Where-Object { $_.Name -ne "template.yaml" } # Exclude template.yaml
   
@@ -432,7 +488,7 @@ function Install-LightSync {
     $InitialSelection = $packages | Where-Object { $InitialSelection -contains $_.Name } | ForEach-Object { $packages.IndexOf($_) }    
   }
   
-  $Selection = Show-Menu -MenuItems $packages -MultiSelect -InitialSelection $InitialSelection -MenuItemFormatter { $args | Select -ExpandProperty Name }
+  $Selection = Show-Menu -MenuItems $packages -MultiSelect -InitialSelection $InitialSelection -MenuItemFormatter { $args | Select-Object -ExpandProperty Name }
   
   # Save new config in registry
   Set-LightSyncPackageNames -PackageNames $Selection.Name
@@ -442,7 +498,7 @@ function Install-LightSync {
   $ValueType = $LSDriveObj.Status
   $prompt = Read-Host "Select LightSync drive and path (${ValueType}: $($defaultValue))"
   $prompt = ($defaultValue, $prompt)[[bool]$prompt]
-  $LightSyncDrive = $prompt  
+  Set-LightSyncDrivePath -DrivePath $prompt # TODO??
 }
 
 function Get-LighSyncDrivePath {
@@ -516,6 +572,62 @@ function Install-LightSyncDrive {
   if (!((Test-Path 'M:') -and (Test-Path 'N:'))) {
     &$SubstFile
   } 
+}
+
+function Convert-ObjectToString {
+  <#
+  .SYNOPSIS
+  Convert an object to an array of strings that can be displayed in the console or logs.
+  Supports optional padding on the left.
+  Supports some basic hastable expansion.
+  .PARAMETER InputObject
+  The object to convert to a string using the Out-String cmdlet.
+  .PARAMETER PadCount
+  The number of characters to pad form left
+  .Parameter PadChar
+  The character to use for padding
+  #>
+  param(
+    [Parameter(ValueFromPipeline, Mandatory)][object]$InputObject,
+    [Parameter(Mandatory = $false)][int]$PadCount = 0,
+    [Parameter(Mandatory = $false)][char]$PadChar = ' '
+  )
+
+  begin {
+    # initialize empty generic list
+    $all = [System.Collections.Generic.List[Object]]::new()
+  }
+
+  process {
+    # [string]$PSCmdlet.MyInvocation.ExpectingInput can be used to detect if input is coming from pipe or parameter
+    if (!$InputObject) {
+      continue
+    }
+
+    $all += $InputObject
+  }
+
+  end {
+    if ($all[0] -is [hashtable]) {
+      Write-Debug "[hashtable] detected"
+      $all = $all | ForEach-Object { [PSCustomObject]$_ }
+    }
+    if ($all.Count -gt 0) {
+      $all = $all | Format-Table
+    }
+
+    [string[]]$Result = (Out-String -InputObject $all) -split '\r?\n'
+    for ($start = 0; [string]::IsNullOrEmpty($Result[$start]) ; $start++) {
+      # Trace forward until the first non-empty string
+    }
+    for ($end = $Result.Count - 1; [string]::IsNullOrEmpty($Result[$end]) ; $end--) {
+      # Trace back to the last non-empty string
+    }
+    # Discard empty strings
+    $Result = $Result[$start..$end]
+    $Result = $Result | ForEach-Object { [string]$PadChar * $PadCount + $_ }
+    return $Result
+  }
 }
 
 function TemplateStr {
@@ -678,7 +790,7 @@ function Get-LightSyncPackageData {
     $OrderedKeys += @{Name = 'Exec'; Expression = { $_.exec -join "`n" } }
     $OrderedKeys += @{Name = 'Reg'; Expression = { $_.reg.key -join "`n" } }
     #$OrderedKeys += @{Name = 'Files'; Expression = { $_.reg.key -join "`n" } }
-    $OrderedKeysList = $OrderedKeys.Clone() | % { if ($_.Name) { $_.Name } else { $_ } }
+    $OrderedKeysList = $OrderedKeys.Clone() | ForEach-Object { if ($_.Name) { $_.Name } else { $_ } }
 
     $RemainingKeys = (Compare-Object -ReferenceObject $Keys -DifferenceObject $OrderedKeysList |  Where-Object SideIndicator -eq '<=' | Select-Object -ExpandProperty InputObject)
     $OrderedKeys += $RemainingKeys
@@ -690,14 +802,6 @@ function Get-LightSyncPackageData {
     $filename = "${env:TEMP}\LightSyncPackages-$(Get-Date -Format 'yyyyMMdd-HHmmss').yaml"
     $AllPackagesObj | ConvertTo-Yaml | Out-File $filename
     yq 'sort_keys(..)' -i $filename
-    # Notepad++ detection
-    if (Get-Command -ErrorAction Ignore -Type Application notepad++) {
-      $OpenCmd = "notepad++"
-    }
-    else {
-      Write-Debug "ConEmu is running, we can get the path from there."
-      $OpenCmd = "notepad"
-    }
 
     Write-Host "Opening $filename"
     Start-Process $filename -Wait
@@ -731,7 +835,6 @@ function Update-FileAssocs {
 
     Write-Debug "[Update-FileAssocs]: Creating assoc for $($a.assoc) -> ``$Target`` : ``$($a.AssocParam)``"
     New-FileAssoc -Extension $a.assoc -ExePath $Target -Params $a.AssocParam -IconPath $assocIcon
-    $pass = $null
   }
 }
 
@@ -749,7 +852,7 @@ function Update-Paths {
 
   if ($AddPaths) {
     Write-Debug "[Update-Paths]: Adding paths: $AddPaths"
-    Add-UserPaths -NewPaths $AddPaths
+    Add-UserPaths -Paths $AddPaths
   }
 
   if ($RemovePaths) {
@@ -788,7 +891,7 @@ function Update-Fonts {
   )
 
   foreach ($f in $Fonts) {
-    $Path = TemplateStr -InputString $f.FontPath -PackageName $f.PkgName
+    $FontPath = TemplateStr -InputString $f.FontPath -PackageName $f.PkgName
     Write-Debug "[Update-Fonts]: Installing font: $FontPath"
     Install-Font SourcePath $FontPath
   }
@@ -806,7 +909,7 @@ function Invoke-LightSync {
     $packages = @{ $Action = ($packages | Where-Object { $_[$Action] }) }
   }
   foreach ($package in $packages) {
-    $tasks = $package.Keys | where { $_ -notin @('PkgName', 'PkgPath') }
+    $tasks = $package.Keys | Where-Object { $_ -notin @('PkgName', 'PkgPath') }
     Write-Debug "[Invoke-LightSync]: Tasks for $($package.PkgName): $tasks"
     foreach ($task in $tasks) {
       Write-Debug "[Invoke-LightSync]: >>>> Running task $task for $($package.PkgName) : $($package.$task)"
@@ -830,7 +933,6 @@ function Invoke-LightSync {
           $package += @{ Assocs = $Assocs }
 
           Update-FileAssocs -FileAssocs $Assocs
-          $pass = $null
         }
         "paths" {
           # Expand array paths into dictionaries
@@ -862,3 +964,7 @@ function Invoke-LightSync {
     }
   }
 }
+
+$STARTUP = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
+$LSDREG = "HKEY_CURRENT_USER\SOFTWARE\LightSync"
+$LIGHTSYNCROOT = (Get-LighSyncDrivePath).DrivePath

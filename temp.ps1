@@ -1,4 +1,4 @@
-
+$MyInvocation.MyCommand.Source
 
 # $c = Get-LightSyncPackageData -Transpose
 # $t = $c[8]

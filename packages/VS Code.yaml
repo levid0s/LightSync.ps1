@@ -9,6 +9,6 @@ reg:
     data: "{PkgPath}/code.exe"
     type: "String"
   - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here\\command"
-    name: ""
+    name: "(Default)"
     data: "\"{PkgPath}/code.exe\" \"%1\""
     type: "String"
