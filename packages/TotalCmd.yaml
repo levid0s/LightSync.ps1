@@ -4,3 +4,5 @@ shortcuts:
 folders:
   - path: "{PkgPath}"
     versionfrom: "{PkgPath}/totalcmd64.exe"
+paths:
+  - "{PkgPath}"

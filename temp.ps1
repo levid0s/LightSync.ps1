@@ -1,3 +1,10 @@
+$APP_SHORTCUT_SUFFIX = [char]0x26a1
+
+# $c="`{0xU+26A1}`"
+
+
+new-item -itemtype file -name "$APP_SHORTCUT_SUFFIX lev $c.txt"
+
 # $c = Get-LightSyncPackageData -Transpose
 # $t = $c[8]
 #   }

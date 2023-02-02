@@ -11,7 +11,7 @@ param(
   $ConfirmPreference = 'None'
 )
 
-. $PSScriptRoot/LightSyncHelper.ps1
+. $PSScriptRoot/_LightSyncHelper.ps1
 
 Write-DebugLog "Starting script"
 

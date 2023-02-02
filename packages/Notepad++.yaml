@@ -2,7 +2,7 @@ shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/notepad++.exe"
     icon: "{PkgPath}/notepad++.exe"
-    assoc: ["txt"]
+    assoc: ["txt", "log", "md"]
     assocparam: ["\"%1\""]
 reg:
   - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX"
@@ -13,3 +13,5 @@ reg:
     name: ""
     data: "\"{PkgPath}/notepad++.exe\" \"%1\""
     type: "String"
+paths:
+  - "{PkgPath}"

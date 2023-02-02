@@ -2,7 +2,7 @@ shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/code.exe"
 paths:
-  - "{PkgPath}"
+  - "{PkgPath}/bin"
 reg:
   - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here"
     name: "Icon"

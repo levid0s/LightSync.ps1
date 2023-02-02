@@ -1,8 +1,8 @@
 paths:
   - "{DbxRoot}/google-cloud-sdk-withpy/bin"
   - "{DbxRoot}/sysinternals"
+  - "{DbxRoot}/nirsoft"
   - "{DbxRoot}/Hashicorp"
-  - "{DbxRoot}/Notepad++"
   - "{DbxRoot}/PuTTY"
   - "{DbxRoot}/Hashicorp"
   - "{DbxRoot}/GitBashPortable/bin"

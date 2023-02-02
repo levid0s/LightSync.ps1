@@ -449,7 +449,7 @@ function Install-ModuleIfNotPresent {
   )
 
   if (!(get-module $ModuleName -ListAvailable -ErrorAction SilentlyContinue)) {
-    Install-Module $ModuleName
+    Install-Module $ModuleName -Scope CurrentUser
   }
 }
 
@@ -463,7 +463,7 @@ function Register-LightSyncScheduledTask {
     [string]$ScriptPath
   )
 
-  $TaskName = 'LightSync.sh'
+  $TaskName = "LightSync.sh - $env:USERNAME"
 
   if (!($ScriptPath)) {
     Throw "This script must be run from a file, not from the console."
@@ -486,7 +486,7 @@ function Register-LightSyncScheduledTask {
   #   -RepetitionInterval (New-TimeSpan -Minutes 15) `
   #   -RepetitionDuration ([System.TimeSpan]::MaxValue)
   if (!$TaskExists) {
-    Register-ScheduledTask -Action $action -Trigger $t1 -TaskName "LightSync.sh" -Description "Light Profile Syncing Project"
+    Register-ScheduledTask -Action $action -Trigger $t1 -TaskName $TaskName -Description "Light User Profile Syncing Project for user $env:USERNAME"
   }
   else {
     Set-ScheduledTask -TaskName $TaskName -Action $action -Trigger $t1
@@ -589,15 +589,13 @@ function Install-LightSyncDrive {
   #>
   $SubstFile = "$STARTUP\subst-lightsync.bat"
   # Get the drive letter of a path:
-  $LightSyncDrive = Get-LighSyncDrivePath -replace '^(.*:).*', '$1'
+  $LightSyncDrive = (Get-LighSyncDrivePath).DrivePath -replace '^(.*:).*', '$1'
   $DropboxPath = Get-DropboxInstallPath
-  if (!(Test-Path $SubstFile)) {
     $formatText = @"
     subst $LightSyncDrive $DropboxPath
     timeout 2
 "@
     Set-Content $SubstFile -Value $formatText
-  }
 
   if (!((Test-Path 'M:') -and (Test-Path 'N:'))) {
     &$SubstFile
@@ -694,12 +692,12 @@ function Update-Shortcuts() {
 
     $ParentPath = switch ($task.Parent) {
       # Wshshell SpecialFolders
-      "Programs-DBX" { [environment]::getfolderpath("Programs") + "\LightSync"; break }
+      "Programs-DBX" { [environment]::getfolderpath("Programs") + "\$START_MENU_FOLDER"; break }
       "Startup" { [environment]::getfolderpath("Startup"); break }
-      default { [environment]::getfolderpath("Programs") + "\LightSync"; break }
+      default { [environment]::getfolderpath("Programs") + "\$START_MENU_FOLDER"; break }
     }
 
-    $LinkPath = "${ParentPath}\$(TemplateStr -PackageName $PackageName -InputString $task.Name ) LightSync.lnk"
+    $LinkPath = "${ParentPath}\$(TemplateStr -PackageName $PackageName -InputString $task.Name ) $APP_SHORTCUT_SUFFIX.lnk"
 
     $StartIn = switch ($task.StartIn) {
       $null { Split-Path -Path (TemplateStr -PackageName $PackageName -InputString $task.Target) } # Start in the Target Exe's folder by default
@@ -1004,4 +1002,7 @@ $STARTUP = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 $LSDREG = "HKEY_CURRENT_USER\SOFTWARE\LightSync"
 $LIGHTSYNCROOT = (Get-LighSyncDrivePath).DrivePath
 $ISADMIN = IsAdmin
+# $APP_SHORTCUT_SUFFIX = [char]0x26a1
+$APP_SHORTCUT_SUFFIX = "LSA"
+$START_MENU_FOLDER = "LightSync.sh"
 # $DEBUGDEPTH - to set externally for the level of logging to display
