@@ -309,8 +309,12 @@ function New-FileAssocExt {
     [Parameter(Mandatory = $false)][string]$IconPath,
     [Parameter(Mandatory = $false)][string]$Description,
     [Parameter(Mandatory = $false)][string]$AppRegSuffix,
+    [Parameter(Mandatory = $false)][string]$Verb,
+    [Parameter(Mandatory = $false)][string]$VerbLabel,
     [Parameter(Mandatory = $false)][switch]$Force
   )
+
+  if ([string]::IsNullOrEmpty($Verb)) { $Verb = 'open' }
 
   $Extension = $Extension.ToLower() -replace '^\.', '' # Remove traling dot if supplied by accident
   $AppName = (Get-Item $ExePath).BaseName
@@ -319,12 +323,17 @@ function New-FileAssocExt {
   if ([string]::IsNullOrEmpty($Params)) { $Params = "`"%1`"" }
   $OpenCmd = "$ExePath $Params"
 
-  $AppRegPath = "HKCU:\SOFTWARE\Classes\${AppRegName}\shell\open\command\(Default)"
+  $AppRegPath = "HKCU:\SOFTWARE\Classes\${AppRegName}\shell\${Verb}\command\(Default)"
   Set-RegValue -FullPath $AppRegPath -Value $OpenCmd -Type REG_SZ -Force
 
   if ($IconPath) {
     $IconRegKey = "HKCU:\SOFTWARE\Classes\${AppRegName}\DefaultIcon\(Default)"
     Set-RegValue -FullPath $IconRegKey -Value $IconPath -Type REG_SZ -Force
+  }
+
+  if ($VerbLabel) {
+    $LabelRegKey = "HKCU:\SOFTWARE\Classes\${AppRegName}\shell\${Verb}\(Default)"
+    Set-RegValue -FullPath $LabelRegKey -Value $VerbLabel -Type REG_SZ -Force
   }
 
   if ($Description) {
@@ -1032,9 +1041,9 @@ function Update-FileAssocsExt {
 
   Data is expected in the following format:
 
-  PkgName                   assoc target                                   assocParam assocIcon           description  force
-  -------                   ----- ------                                   ---------- ---------           -----------  -----
-  7-zip                     zip   {PkgPath}/7zFM.exe                                  {PkgPath}/7z.dll,1  Zip archive  true
+  PkgName                   assoc target                                   assocParam assocIcon           description  force  verb     verblabel
+  -------                   ----- ------                                   ---------- ---------           -----------  -----  -------  -----
+  7-zip                     zip   {PkgPath}/7zFM.exe                                  {PkgPath}/7z.dll,1  Zip archive  true   enqueue  Enqueue in Winamp
   FSViewer                  jpg   {PkgPath}/{PkgName}.exe                 
   FSViewer                  jpeg  {PkgPath}/{PkgName}.exe                 
   LibreOfficePortable-7.4.2 xls   {PkgPath}/LibreOfficeCalcPortable.exe     -o "%1"
@@ -1058,6 +1067,8 @@ function Update-FileAssocsExt {
       -IconPath $assocIcon `
       -Description $a.Description `
       -AppRegSuffix "LSH" `
+      -Verb $a.Verb `
+      -VerbLabel $a.VerbLabel `
       -Force:$a.Force
   }
 
@@ -1127,6 +1138,33 @@ function Update-Fonts {
   }
 }
 
+function Set-ShellStaticVerb {
+  # OS level function
+  param(
+    [Parameter(Mandatory = $true)][string]$Class,
+    [Parameter(Mandatory = $true)][string]$Verb,
+    [Parameter(Mandatory = $true)][string]$Target,
+    [string]$Label
+  )
+
+  $key = "HKCU:\SOFTWARE\Classes\${Class}\shell\${Verb}\(Default)"
+  Set-RegValue -FullPath $key -Value $Label -Type String -Force
+
+  $key = "HKCU:\SOFTWARE\Classes\${Class}\shell\${Verb}\command\(Default)"
+  Set-RegValue -FullPath $key -Value $Target -Type String -Force
+}
+
+function Update-ShellStaticVerbs {
+  param(
+    [PsObject]$ShellStaticVerbs
+  )
+
+  foreach ($v in $ShellStaticVerbs) {
+    $target = TemplateStr -InputString $v.Target -PackageName $v.PkgName
+    Set-ShellStaticVerb -class $v.class -Verb $v.Verb -Target $target -Label $v.verblabel
+  }
+}
+
 function Invoke-LightSync {
   param(
     [string]$PackageFile
@@ -1142,7 +1180,7 @@ function Invoke-LightSync {
     $tasks = $package.Keys | Where-Object { $_ -notin @('PkgName', 'PkgPath') }
     Write-DebugLog "Tasks for $($package.PkgName): $tasks"
     foreach ($task in $tasks) {
-      Write-DebugLog "Running task $task for $($package.PkgName) : $($package.$task)"
+      Write-DebugLog "Running task ``$task`` for $($package.PkgName) : $($package.$task)"
       switch ($task) {
         "shortcuts" {
           Update-Shortcuts `
@@ -1177,8 +1215,11 @@ function Invoke-LightSync {
           }
 
           Update-FileAssocsExt -FileAssocs $Assocs
-
-        }        
+        }
+        "ShellStaticVerbs" {
+          Update-ShellStaticVerbs -ShellStaticVerbs $package.ShellStaticVerbs
+          # $DEBUG}EPTH - to set externally for the level of logging to display
+        }
         "paths" {
           # Expand array paths into dictionaries
           # TODO - This can go in load function 

@@ -1,4 +1,13 @@
 ---
+ShellStaticVerbs:
+  - class: exefile
+    target: '{DbxRoot}\Nirsoft\iconsext.exe -scanpath "%1"'
+    verb: iconsext
+    verblabel: Extract Icons
+  - class: dllfile
+    target: '{DbxRoot}\Nirsoft\iconsext.exe -scanpath "%1"'
+    verb: iconsext
+    verblabel: Extract Icons
 paths:
   - '{DbxRoot}/google-cloud-sdk-withpy/bin'
   - '{DbxRoot}/sysinternals'
@@ -101,9 +110,9 @@ reg:
     type: DWord
 shortcuts:
   - icon: '{LSRoot}\_PACKAGES\res\favicon.ico'
-    name: LSApps
+    name: LSH Apps
     target: '%AppData%\Microsoft\Windows\Start Menu\Programs\LightSync.sh'
-  - name: LSRoot
+  - name: LSH Root
     target: '{LSRoot}'
   - name: Presentation Mode START
     params: ["/start"]

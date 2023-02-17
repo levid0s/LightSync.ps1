@@ -1,11 +1,22 @@
-shortcuts:
-  - name: "Winamp"
-    target: "{DbxRoot}/Winamp-58portable/winamp.exe"
+---
+assocs:
+  - assoc: ["flac", "m4a", "mp3", "opus", "webm", "pls"]
+    assocIcon: '{DbxRoot}/Winamp-58portable/winamp.exe,1'
+    assocParam: ' /ADD "%1"'
+    target: '{DbxRoot}/Winamp-58portable/winamp.exe'
+  - assoc: ["flac", "m4a", "mp3", "opus", "webm", "pls"]
+    assocParam: ' /ADD "%1"'
+    target: '{DbxRoot}/Winamp-58portable/winamp.exe'
+    verb: enqueue
+    verblabel: En&queue in Winamp
 folders:
-  - path: "{DbxRoot}/Winamp-58portable"
-    versionfrom: "{DbxRoot}/Winamp-58portable/winamp.exe"
+  - path: '{DbxRoot}/Winamp-58portable'
+    versionfrom: '{DbxRoot}/Winamp-58portable/winamp.exe'
 reg:
-  - key: "HKCU:\\SOFTWARE\\Classes\\Applications\\Winamp.exe\\shell\\open\\command"
-    name: ""
-    data: "\"{DbxRoot}/Winamp-58portable/winamp.exe\" -o \"%1\""
-    type: "String"
+  - data: '"{DbxRoot}/Winamp-58portable/winamp.exe" -o "%1"'
+    key: HKCU:\SOFTWARE\Classes\Applications\Winamp.exe\shell\open\command
+    name: (Default)
+    type: String
+shortcuts:
+  - name: Winamp
+    target: '{DbxRoot}/Winamp-58portable/winamp.exe'
