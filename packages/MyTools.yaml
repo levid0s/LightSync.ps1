@@ -1,126 +1,114 @@
+---
 paths:
-  - "{DbxRoot}/google-cloud-sdk-withpy/bin"
-  - "{DbxRoot}/sysinternals"
-  - "{DbxRoot}/nirsoft"
-  - "{DbxRoot}/Hashicorp"
-  - "{DbxRoot}/PuTTY"
-  - "{DbxRoot}/Hashicorp"
-  - "{DbxRoot}/GitBashPortable/bin"
-  - "{DbxRoot}/GitBashPortable/mingw64/bin"
-  - "{DbxRoot}/GitBashPortable/usr/bin"
-  - "{DbxRoot}/ffmpeg/bin"
-  - "{DbxRoot}/flac-1.3.2-win/win64"
-  - "{DbxRoot}/go/bin"
-  - "{DbxRoot}/Graphviz/bin"
-  - "N:/src/PS-Gcloud"
-  - "{DbxRoot}"
-shortcuts:
-  - name: "LSApps"
-    target: "%AppData%\\Microsoft\\Windows\\Start Menu\\Programs\\LightSync"
-    icon: "{LSRoot}\\_PACKAGES\\res\\favicon.ico"
-  - name: "LSRoot"
-    target: "{LSRoot}"
-  - name: "Presentation Mode START"
-    target: "%SYSTEMROOT%\\System32\\PresentationSettings.exe"
-    params: ["/start"]
-  - name: "Presentation Mode STOP"
-    target: "%SYSTEMROOT%\\System32\\PresentationSettings.exe"
-    params: ["/stop"]
-    icon: "%SYSTEMROOT%\\System32\\PresentationSettings.exe,2"
+  - '{DbxRoot}/google-cloud-sdk-withpy/bin'
+  - '{DbxRoot}/sysinternals'
+  - '{DbxRoot}/nirsoft'
+  - '{DbxRoot}/Hashicorp'
+  - '{DbxRoot}/PuTTY'
+  - '{DbxRoot}/Hashicorp'
+  - '{DbxRoot}/GitBashPortable/bin'
+  - '{DbxRoot}/GitBashPortable/mingw64/bin'
+  - '{DbxRoot}/GitBashPortable/usr/bin'
+  - '{DbxRoot}/ffmpeg/bin'
+  - '{DbxRoot}/flac-1.3.2-win/win64'
+  - '{DbxRoot}/go/bin'
+  - '{DbxRoot}/Graphviz/bin'
+  - N:/src/PS-Gcloud
+  - '{DbxRoot}'
 reg:
-# Disable Bing Search in Start
-  - key: "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
-    name: "DisableSearchBoxSuggestions"
+  - data: 1
+    key: HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer
+    name: DisableSearchBoxSuggestions
+    type: DWord
+  - admin: true
     data: 1
-    type: "DWord"
-# Enable Run As User Menu
-  - key: "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
-    name: "ShowRunAsDifferentUserInStart"
-    data: 1
-    type: "DWord"
-# Enable Mobility Center on Desktop
-  - key: "HKCU:\\Software\\Microsoft\\MobilePC\\AdaptableSettings"
-    name: "SkipBatteryCheck"
-    data: 1
-    type: "DWord"
-  - key: "HKCU:\\Software\\Microsoft\\MobilePC\\MobilityCenter"
-    name: "RunOnDesktop"
-    data: 1
-    type: "DWord"
-# Disable Edge Alt+Tab shit
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "MultiTaskingAltTabFilter"
-    data: 3
-    type: "DWord"
-# Taskbar - Enable List View
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Taskband"
-    name: "NumThumbnails"
+    key: HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer
+    name: ShowRunAsDifferentUserInStart
+    type: DWord
+  - data: 1
+    key: HKCU:\Software\Microsoft\MobilePC\AdaptableSettings
+    name: SkipBatteryCheck
+    type: DWord
+  - data: 1
+    key: HKCU:\Software\Microsoft\MobilePC\MobilityCenter
+    name: RunOnDesktop
+    type: DWord
+  - data: 3
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: MultiTaskingAltTabFilter
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband
+    name: NumThumbnails
+    type: DWord
+  - data: 1
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ExtendedUIHoverTime
+    type: DWord
+  - data: 1
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: Hidden
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: HideFileExt
+    type: DWord
+  - data: 1
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: Start_TrackDocs
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: Start_ShowMyGames
+    type: DWord
+  - data: 1
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: OnboardUnpinCortana
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowCortanaButton
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowTaskViewButton
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowSyncProviderNotifications
+    type: DWord
+  - data: 10
+    key: HKCU:\Control Panel\Desktop
+    name: MenuShowDelay
+    type: DWord
+  - data: 0
+    key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: NavPaneShowAllFolders
+    type: DWord
+  - admin: true
     data: 0
-    type: "DWord"
-# Taskbar - Reduce Hover Time
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "ExtendedUIHoverTime"
-    data: 1
-    type: "DWord"
-# Show Hidden
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "Hidden"
-    data: 1
-    type: "DWord"
-# Don't Hide File Extensions
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "HideFileExt"
+    key: HKCU:\Software\Policies\Microsoft\Office\16.0\osm
+    name: Enablelogging
+    type: DWord
+  - admin: true
     data: 0
-    type: "DWord"
-# Show recently opened Documents from the Start menu /Start Run    
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "Start_TrackDocs"
-    data: 1
-    type: "DWord"
-# Don't add Games shortcut to the start menu
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "Start_ShowMyGames"
-    data: 0
-    type: "DWord"    
-# Hide Cortana
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "OnboardUnpinCortana"
-    data: 1
-    type: "DWord"
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "ShowCortanaButton"
-    data: 0
-    type: "DWord"
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "ShowTaskViewButton"
-    data: 0
-    type: "DWord"
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "ShowSyncProviderNotifications"
-    data: 0
-    type: "DWord"
-# Start Menu Speed
-  - key: "HKCU:\\Control Panel\\Desktop"
-    name: "MenuShowDelay"
-    data: 10
-    type: "DWord"
-# Show all folders in Explorer including Recycle Bin, Desktop, Control Panel
-  - key: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-    name: "NavPaneShowAllFolders"
-    data: 0
-    type: "DWord"
-# Disable Telemetry in Microsoft Office
-  - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
-    name: "Enablelogging"
-    data: 0
-    type: "DWord"
-    admin: true
-  - key: "HKCU:\\Software\\Policies\\Microsoft\\Office\\16.0\\osm"
-    name: "EnableUpload"
-    data: 0
-    type: "DWord"
-    admin: true
-  - key: "HKCU:\\Software\\Microsoft\\Office\\Common\\ClientTelemetry"
-    name: "DisableTelemetry"
-    data: 1
-    type: "DWord"
+    key: HKCU:\Software\Policies\Microsoft\Office\16.0\osm
+    name: EnableUpload
+    type: DWord
+  - data: 1
+    key: HKCU:\Software\Microsoft\Office\Common\ClientTelemetry
+    name: DisableTelemetry
+    type: DWord
+shortcuts:
+  - icon: '{LSRoot}\_PACKAGES\res\favicon.ico'
+    name: LSApps
+    target: '%AppData%\Microsoft\Windows\Start Menu\Programs\LightSync.sh'
+  - name: LSRoot
+    target: '{LSRoot}'
+  - name: Presentation Mode START
+    params: ["/start"]
+    target: '%SYSTEMROOT%\System32\PresentationSettings.exe'
+  - icon: '%SYSTEMROOT%\System32\PresentationSettings.exe,2'
+    name: Presentation Mode STOP
+    params: ["/stop"]
+    target: '%SYSTEMROOT%\System32\PresentationSettings.exe'

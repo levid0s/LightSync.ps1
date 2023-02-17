@@ -1,14 +1,15 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/code.exe"
+---
 paths:
-  - "{PkgPath}/bin"
+  - '{PkgPath}/bin'
 reg:
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here"
-    name: "Icon"
-    data: "{PkgPath}/code.exe"
-    type: "String"
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here\\command"
-    name: "(Default)"
-    data: "\"{PkgPath}/code.exe\" \"%1\""
-    type: "String"
+  - data: '{PkgPath}/code.exe'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\VS Code LSH Here
+    name: Icon
+    type: String
+  - data: '"{PkgPath}/code.exe" "%1"'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\VS Code LSH Here\command
+    name: (Default)
+    type: String
+shortcuts:
+  - name: '{PkgName}'
+    target: '{PkgPath}/code.exe'

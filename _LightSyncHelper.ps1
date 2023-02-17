@@ -8,8 +8,15 @@ function Write-DebugLog {
     [string]$Message
   )
   $Caller = (Get-PSCallStack)[1].Command
-  $Depth = (Get-PSCallStack).Count - 3 # Main script is 0
+  # Get depth of call. 0 = main script, 1 = Helper ps1 , 2 = Write-DebugLog
+  # Any negative value make to 0
+  $Depth = 0, ((Get-PSCallStack).Count - 3) | Measure-Object -Maximum | Select-Object -ExpandProperty Maximum  # Main script is 0
   
+  if (!$DEBUGDEPTH) {
+    # Default value if not set via global var
+    $DEBUGDEPTH = 2
+  }
+
   if ($Depth -gt $DEBUGDEPTH) { return }
   if (!$DEBUGDEPTH) { $MaxDepth = 4 * 2 }
   else { $MaxDepth = $DEBUGDEPTH * 2 }
@@ -31,6 +38,25 @@ function IsAdmin {
   #>
   $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
   $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)  
+}
+
+function Invoke-SHChangeNotify {
+  <#
+  Function to call SHChangeNotify, which is used to notify the shell of changes.
+  Can be used to refresh icons after an assoc change, instead of restarting Explorer.
+  https://stackoverflow.com/questions/9986869/force-the-icons-on-the-desktop-to-refresh-after-deleting-items-or-stop-an-item
+  #>
+  $code = @'
+  [System.Runtime.InteropServices.DllImport("Shell32.dll")] 
+  private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
+
+  public static void Refresh()  {
+      SHChangeNotify(0x8000000, 0x1000, IntPtr.Zero, IntPtr.Zero);    
+  }
+'@
+
+  Add-Type -MemberDefinition $code -Namespace WinAPI -Name Explorer 
+  [WinAPI.Explorer]::Refresh()
 }
 
 ###
@@ -153,14 +179,33 @@ function Set-RegValue {
 ##
 
 function New-Shortcut() {
+  <#
+  .PARAMETER Force
+  Overwrite destination if already exists.
+  TODO - Implement Force for non-unicode shortcuts
+  #>
+
   param(
     [Parameter(Mandatory = $true)][string]$LnkPath,
     [Parameter(Mandatory = $true)][string]$TargetExe,
     [string[]]$Arguments,
     [string]$WorkingDir,
     [string]$IconPath,
-    [Parameter()][ValidateSet('Default', 'Minimized', 'Maximized')][string]$WindowStyle = 'Default'
+    [Parameter()][ValidateSet('Default', 'Minimized', 'Maximized')][string]$WindowStyle = 'Default',
+    [switch]$Force
   )
+
+  if ((Test-Path -LiteralPath $LnkPath) -and !$Force) {
+    Write-DebugLog "Link already exists, exiting."
+    Return # "AlreadyExists"
+  }
+
+  if ($Force) {
+    $ForceParam = @{Force = $null }
+  }
+  else {
+    $ForceParam = @{ }
+  }
 
   $bitWindowStyle = @{
     Default   = 1;
@@ -172,7 +217,16 @@ function New-Shortcut() {
   if (!(Test-Path $ParentPath)) {
     New-Item -Path $ParentPath -ItemType Directory -Force
   }
- 
+
+  $nonASCII = "[^\x00-\x7F]"
+  $HasUnicode = $LnkPath -cmatch $nonASCII
+
+  if ($HasUnicode) {
+    $RealLnkPath = $LnkPath
+    $LnkPath = "$env:TEMP\$(New-Guid).lnk"
+    Write-DebugLog "$RealLnkPath has Unicode characters. Temp file is: $LnkPath"
+  }
+
   if ($Arguments) {
     Write-DebugLog "Arguments supplied: $Arguments"
   }
@@ -180,10 +234,19 @@ function New-Shortcut() {
   $Shortcut = $WshShell.CreateShortcut($LnkPath)
   $Shortcut.TargetPath = $TargetExe
   $Shortcut.Arguments = $Arguments -join " "
-  $Shortcut.IconLocation = $IconPath
+
+  if ($IconPath) {
+    $Shortcut.IconLocation = $IconPath
+  }
+  
   $Shortcut.WorkingDirectory = $WorkingDir
   $Shortcut.WindowStyle = $bitWindowStyle[$WindowStyle]
   $Shortcut.Save()
+
+  if ($HasUnicode) {
+    Move-Item -Path $LnkPath -Destination $RealLnkPath @ForceParam
+    Write-DebugLog "Moved $LnkPath to $RealLnkPath"
+  }
 }
 
 
@@ -199,7 +262,7 @@ function New-FileAssoc {
     [Parameter(Mandatory = $false)][string]$IconPath
   )
 
-  $Extension = $Extension -replace '^\.', '' # Remove traling dot if supplied by accident
+  $Extension = $Extension.ToLower() -replace '^\.', '' # Remove traling dot if supplied by accident
 
   $ExeName = Split-Path $ExePath -Leaf
   if ([string]::IsNullOrEmpty($Params)) { $Params = "`"%1`"" }
@@ -214,6 +277,83 @@ function New-FileAssoc {
   if ($IconPath) {
     $IconRegKey = "HKCU:\SOFTWARE\Classes\Applications\${ExeName}\DefaultIcon\(Default)"
     Set-RegValue -FullPath $IconRegKey -Value $IconPath -Type REG_EXPAND_SZ -Force
+  }
+}
+
+function New-FileAssocExt {
+  <#
+  .SYNOPSIS
+  New File Assoc *EXTENDED* function; meaning an app registration is also created, eg. 7-Zip.zip
+  Useful when multiple file types are associated with the same app; but they get different icons assigned.
+  .PARAMETER Extension
+  File extension for which to register the app association. Do not include the dot. Eg: 'zip', 'jpeg'
+  .PARAMETER ExePath
+  Path to the executable that would open this file type
+  .PARAMETER Params
+  Any parameters that should be passed to the executable. %1 will be replaced with the file path that the user wants to open.
+  .PARAMETER IconPath
+  Path to the icon that should be used for this file type.
+  .PARAMETER Description
+  Description of the file type. This will be displayed in the "Open with" dialog.
+  .PARAMETER AppRegSuffix
+  Suffix to append to the app registration name. Eg: tmp -> 7-Zip_tmp.zip
+  .PARAMETER Force
+  Force will remove the existing default association for this file type.
+  #>
+  # Note to self: Past user choices are stored here:
+  # HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts
+  param(
+    [Parameter(Mandatory = $true)][string]$Extension,
+    [Parameter(Mandatory = $true)][string]$ExePath,
+    [Parameter(Mandatory = $false)][string]$Params,
+    [Parameter(Mandatory = $false)][string]$IconPath,
+    [Parameter(Mandatory = $false)][string]$Description,
+    [Parameter(Mandatory = $false)][string]$AppRegSuffix,
+    [Parameter(Mandatory = $false)][switch]$Force
+  )
+
+  $Extension = $Extension.ToLower() -replace '^\.', '' # Remove traling dot if supplied by accident
+  $AppName = (Get-Item $ExePath).BaseName
+  if ($AppRegSuffix) { $AppRegSuffix = "_${AppRegSuffix}" }
+  $AppRegName = "${AppName}${AppRegSuffix}.${Extension}"
+  if ([string]::IsNullOrEmpty($Params)) { $Params = "`"%1`"" }
+  $OpenCmd = "$ExePath $Params"
+
+  $AppRegPath = "HKCU:\SOFTWARE\Classes\${AppRegName}\shell\open\command\(Default)"
+  Set-RegValue -FullPath $AppRegPath -Value $OpenCmd -Type REG_SZ -Force
+
+  if ($IconPath) {
+    $IconRegKey = "HKCU:\SOFTWARE\Classes\${AppRegName}\DefaultIcon\(Default)"
+    Set-RegValue -FullPath $IconRegKey -Value $IconPath -Type REG_SZ -Force
+  }
+
+  if ($Description) {
+    $DescriptionPath = "HKCU:\SOFTWARE\Classes\${AppRegName}\(Default)"
+    Set-RegValue -FullPath $DescriptionPath -Value $Description -Type REG_SZ -Force
+  }
+
+  $ExtRegPath = "HKCU:\SOFTWARE\Classes\.${Extension}\(Default)"
+  Set-RegValue -FullPath $ExtRegPath -Value $AppRegName -Type REG_SZ -Force
+
+  if ($Force) {
+    $UserChoicePath = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.${Extension}\UserChoice"
+    if (Test-Path -LiteralPath $UserChoicePath) {
+      Write-DebugLog "Removing existing user choice for file extension .${Extension}: ${UserChoicePath}"
+      $TempFile = "$env:TEMP\RemoveUserChoice_${Extension}.reg"
+      Write-DebugLog "Temp reg file: $TempFile"
+
+      $UserChoiceDelReg = @"
+Windows Registry Editor Version 5.00
+[-HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.${Extension}\UserChoice]
+"@
+      Set-Content $TempFile $UserChoiceDelReg -Force
+      # This will elevate to admin at each schedule, not great.
+      regedit /s $TempFile
+      if ($DebugPreference -ne 'Continue') {
+        Remove-Item $TempFile -Force
+      }
+      
+    }
   }
 }
 
@@ -453,6 +593,9 @@ function Install-ModuleIfNotPresent {
   }
 }
 
+function Get-ScriptPath {
+  return $MyInvocation.MyCommand.Source
+}
 
 ###
 ###  High Level Functions
@@ -466,13 +609,30 @@ function Register-LightSyncScheduledTask {
   $TaskName = "LightSync.sh - $env:USERNAME"
 
   if (!($ScriptPath)) {
-    Throw "This script must be run from a file, not from the console."
+    Throw "This function must be run from a file, not from the console."
   }
+
+  # Create wrapper vbs script so we can run the PowerShell script as hidden
+  # https://github.com/PowerShell/PowerShell/issues/3028
+
+  $vbsPath = "$env:LOCALAPPDATA\LightSync.sh\LightSyncTask.vbs"
+  $vbsDir = Split-Path $vbsPath -Parent
+  $vbsScript = @"
+Dim shell,command
+command = "powershell.exe -nologo -File $ScriptPath"
+Set shell = CreateObject("WScript.Shell")
+shell.Run command,0
+"@
+
+  if (!(Test-Path $vbsDir)) {
+    New-Item -ItemType Directory -Path $vbsDir
+  }
+
+  Set-Content -Path $vbsPath -Value $vbsScript -Force
 
   Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue -OutVariable TaskExists
 
-  $action = New-ScheduledTaskAction -Execute 'Powershell.exe' `
-    -Argument "-WindowStyle Hidden $ScriptPath" 
+  $action = New-ScheduledTaskAction -Execute $vbsPath
   
   $t1 = New-ScheduledTaskTrigger -Daily -At 01:00
   $t2 = New-ScheduledTaskTrigger -Once -At 01:00 `
@@ -492,10 +652,6 @@ function Register-LightSyncScheduledTask {
     Set-ScheduledTask -TaskName $TaskName -Action $action -Trigger $t1
   }
   
-}
-
-function Get-ScriptPath {
-  return $MyInvocation.MyCommand.Source
 }
 
 function Install-Dependencies {
@@ -591,11 +747,11 @@ function Install-LightSyncDrive {
   # Get the drive letter of a path:
   $LightSyncDrive = (Get-LighSyncDrivePath).DrivePath -replace '^(.*:).*', '$1'
   $DropboxPath = Get-DropboxInstallPath
-    $formatText = @"
+  $formatText = @"
     subst $LightSyncDrive $DropboxPath
     timeout 2
 "@
-    Set-Content $SubstFile -Value $formatText
+  Set-Content $SubstFile -Value $formatText
 
   if (!((Test-Path 'M:') -and (Test-Path 'N:'))) {
     &$SubstFile
@@ -841,13 +997,16 @@ function Get-LightSyncPackageData {
 
 function Update-FileAssocs {
   <#
-  Function will iterate through the PSObject List to do the file associations.
-  The following properties are expected:
+  Function for processing `package.shortcuts.assoc` (not `package.assoc`)
+  Iterates through the PSObject List to register the file associations.
 
-  PkgName                   assoc target                                  name             assocparam assocIcon
+  Data is expected in the following format:
+
+  PkgName                   assoc target                                  name             assocParam assocIcon
   -------                   ----- ------                                  ----             ---------- ---------
   7-zip                     zip   {PkgPath}/7zFM.exe                      {PkgName}                   {PkgPath}/7z.dll,1
   FSViewer                  jpg   {PkgPath}/{PkgName}.exe                 {PkgName}
+  FSViewer                  jpeg  {PkgPath}/{PkgName}.exe                 {PkgName}
   LibreOfficePortable-7.4.2 xls   {PkgPath}/LibreOfficeCalcPortable.exe   {PkgName} Calc    -o "%1"
   Notepad++                 txt   {PkgPath}/notepad++.exe                 {PkgName}        {"%1"}
 
@@ -864,6 +1023,44 @@ function Update-FileAssocs {
     Write-DebugLog "Creating assoc for $($a.assoc) -> ``$Target`` : ``$($a.AssocParam)``"
     New-FileAssoc -Extension $a.assoc -ExePath $Target -Params $a.AssocParam -IconPath $assocIcon
   }
+}
+
+function Update-FileAssocsExt {
+  <#
+  Function for processing `package.assoc` (not `package.shortcuts.assoc`)
+  Iterates through the PSObject List to do the file associations.
+
+  Data is expected in the following format:
+
+  PkgName                   assoc target                                   assocParam assocIcon           description  force
+  -------                   ----- ------                                   ---------- ---------           -----------  -----
+  7-zip                     zip   {PkgPath}/7zFM.exe                                  {PkgPath}/7z.dll,1  Zip archive  true
+  FSViewer                  jpg   {PkgPath}/{PkgName}.exe                 
+  FSViewer                  jpeg  {PkgPath}/{PkgName}.exe                 
+  LibreOfficePortable-7.4.2 xls   {PkgPath}/LibreOfficeCalcPortable.exe     -o "%1"
+  Notepad++                 txt   {PkgPath}/notepad++.exe                  {"%1"}
+
+  #>
+
+  param(
+    [PsObject]$FileAssocs
+  )
+
+  foreach ($a in $FileAssocs) {
+    $Target = TemplateStr -InputString $a.Target -PackageName $a.PkgName
+    $assocIcon = TemplateStr -InputString $a.AssocIcon -PackageName $a.PkgName
+
+    Write-DebugLog "Creating assoc for $($a.assoc) -> ``$Target`` : ``$($a.AssocParam)``"
+    New-FileAssocExt `
+      -Extension $a.assoc `
+      -ExePath $Target `
+      -Params $a.AssocParam `
+      -IconPath $assocIcon `
+      -Description $a.Description `
+      -AppRegSuffix "LSH" `
+      -Force:$a.Force
+  }
+
 }
 
 function Update-Paths {
@@ -958,15 +1155,30 @@ function Invoke-LightSync {
           # TODO - This can go in load function
           $package.shortcuts | Where-Object assoc | ForEach-Object { 
             $app = $_; $_.assoc | ForEach-Object { 
+              # Make a full copy of the object
               $temp = [PsCustomObject][System.Management.Automation.PSSerializer]::Deserialize([System.Management.Automation.PSSerializer]::Serialize($app))
               $temp.assoc = $_; $Assocs += $temp 
             } 
           }
 
-          $package += @{ Assocs = $Assocs }
+          # $package += @{ Assocs = $Assocs }
 
           Update-FileAssocs -FileAssocs $Assocs
         }
+        "assocs" {
+          # Root `package.assocs`, not the same as `package.shortcuts.assoc`
+          $Assocs = @();
+          $package.assocs | ForEach-Object {
+            $app = $_; $_.assoc | ForEach-Object { # Expand each assoc into a separate element
+              # Make a full copy of the object
+              $temp = [PsCustomObject][System.Management.Automation.PSSerializer]::Deserialize([System.Management.Automation.PSSerializer]::Serialize($app))
+              $temp.assoc = $_; $Assocs += $temp 
+            }
+          }
+
+          Update-FileAssocsExt -FileAssocs $Assocs
+
+        }        
         "paths" {
           # Expand array paths into dictionaries
           # TODO - This can go in load function 
@@ -993,6 +1205,7 @@ function Invoke-LightSync {
           $Fonts = $package.fonts
           Update-Fonts -Fonts $Fonts
         }
+
       }
     }
   }
@@ -1002,7 +1215,7 @@ $STARTUP = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
 $LSDREG = "HKEY_CURRENT_USER\SOFTWARE\LightSync"
 $LIGHTSYNCROOT = (Get-LighSyncDrivePath).DrivePath
 $ISADMIN = IsAdmin
-# $APP_SHORTCUT_SUFFIX = [char]0x26a1
-$APP_SHORTCUT_SUFFIX = "LSA"
+$APP_SHORTCUT_SUFFIX = [char]0x26a1
+# $APP_SHORTCUT_SUFFIX = "LSA"
 $START_MENU_FOLDER = "LightSync.sh"
 # $DEBUGDEPTH - to set externally for the level of logging to display

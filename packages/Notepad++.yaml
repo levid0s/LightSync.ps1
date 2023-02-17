@@ -1,17 +1,23 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/notepad++.exe"
-    icon: "{PkgPath}/notepad++.exe"
-    assoc: ["txt", "log", "md"]
-    assocparam: ["\"%1\""]
-reg:
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX"
-    name: "Icon"
-    data: "{PkgPath}/notepad++.exe,0"
-    type: "String"
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\*\\shell\\Open with Notepad++ DBX\\command"
-    name: ""
-    data: "\"{PkgPath}/notepad++.exe\" \"%1\""
-    type: "String"
+---
 paths:
-  - "{PkgPath}"
+  - '{PkgPath}'
+reg:
+  - data: '{PkgPath}/notepad++.exe,0'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\*\shell\Open with Notepad++ LSH
+    name: Icon
+    type: String
+  - data: '"{PkgPath}/notepad++.exe" "%1"'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\*\shell\Open with Notepad++ LSH\command
+    name: ''
+    type: String
+  - data: Notepad++ LSH
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\Applications\notepad++.exe
+    name: FriendlyAppName
+    type: String
+shortcuts:
+  - assoc: ["txt", "log", "md"]
+    assocparam: ["\"%1\""]
+    icon: '{PkgPath}/notepad++_100.ico'
+    name: '{PkgName}'
+    target: '{PkgPath}/notepad++.exe'
+# 🗲

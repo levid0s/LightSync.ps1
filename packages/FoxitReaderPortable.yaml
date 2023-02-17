@@ -1,4 +1,6 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
-    assoc: ["pdf"]
+  - assoc: ["pdf"]
+    icon: '{PkgPath}/App/Foxit Reader/FoxitPDFReader.exe,0'
+    name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'

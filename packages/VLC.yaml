@@ -1,8 +1,10 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
-    assoc: ["avi", "flac", "m4a", "mp3", "mp4", "mkv", "opus", "wmv"]
-    assocparam: "\"%1\""
+---
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/{PkgName}.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/{PkgName}.exe'
+shortcuts:
+  - assoc: ["3gp", "aac", "asf", "au", "avi", "flac", "flv", "m4a", "mkv", "mov", "mp3", "mp4", "mpg", "opus", "wmv"]
+    assocIcon: null
+    assocparam: '"%1"'
+    name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'

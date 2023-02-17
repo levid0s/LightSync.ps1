@@ -1,3 +1,5 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
+  - icon: '{PkgPath}/App/Chrome-bin/chrome.exe,4'
+    name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'

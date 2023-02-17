@@ -1,10 +1,10 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/7zFM.exe"
-    params: ""
-    icon: "{PkgPath}/7zFM.exe"
-    assoc: ["zip", "7z", "rar"]
-    assocIcon: "{PkgPath}/7z.dll,1"
+---
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/7zFM.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/7zFM.exe'
+shortcuts:
+  - assocIcon: '{PkgPath}/7z.dll,1'
+    icon: '{PkgPath}/7zFM.exe'
+    name: '{PkgName}'
+    params: ''
+    target: '{PkgPath}/7zFM.exe'

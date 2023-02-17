@@ -8,8 +8,11 @@ param(
   [string]$PackageFile,
   # TODO - To implement $Action filter
   [Parameter()][ValidateSet('exec', 'files', 'folders', 'fonts', 'paths', 'reg', 'shortcuts', 'symlink')][string]$Action,
-  $ConfirmPreference = 'None'
+  $ConfirmPreference = 'None',
+  $DebugPreference = 'Continue'
 )
+
+$DebugPreference = 'Continue'
 
 . $PSScriptRoot/_LightSyncHelper.ps1
 
