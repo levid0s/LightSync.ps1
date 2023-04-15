@@ -211,7 +211,6 @@ function Update-Shortcuts() {
   )
 
   foreach ($task in $Tasks) {
-
     $ParentPath = switch ($task.Parent) {
       # Wshshell SpecialFolders
       'Programs-DBX' { [environment]::getfolderpath('Programs') + "\$START_MENU_FOLDER"; break }
@@ -227,21 +226,33 @@ function Update-Shortcuts() {
     }
   
     $Target = TemplateStr -PackageName $PackageName -InputString $task.Target
-
     $IconPath = switch -regex ($task.Icon) {
-      '^$' { 
-        # Use the target exe's icon by default        
-        "$Target,0" 
+      '^$' {
+        if (Test-Path $target -ErrorAction SilentlyContinue) {
+          if (!(Get-Item $target).PSIsContainer) {
+            # Use the target exe's icon by default, if it's not a folder
+            "$Target,0" 
+          }
+        }
       }
       ',\d+$' { 
-        # Icon path already has a trailing `,0`
+        # Icon path already contains the index
         TemplateStr -InputString $_ -PackageName $PackageName 
       }
       default { 
-        # Append trailing `,0` if only icon file was specified
+        # Append trailing `,0` if only an icon or binary was specified
         "$(TemplateStr -InputString $_ -PackageName $PackageName ),0"
       } 
     }
+
+    $iconFilePath, $iconIndex = $IconPath -split ','
+    if ([System.IO.Path]::IsPathRooted($iconFilePath)) {
+      $iconFilePath = Get-RealPath -Path $iconFilePath
+    }
+    if ($iconIndex) {
+      $iconIndex = ",$iconIndex"
+    }
+    $IconPath = "${iconFilePath}${iconIndex}"
 
     $Params = $task.Params
 

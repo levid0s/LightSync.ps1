@@ -1,4 +1,8 @@
 ---
+assocs:
+  - AssocIcon: '{PkgPath}/7z.dll,1'
+    assoc: ["7z", "gz", "rar", "tar", "tgz", "zip"]
+    target: '{PkgPath}/7zFM.exe'
 folders:
   - path: '{PkgPath}'
     versionfrom: '{PkgPath}/7zFM.exe'

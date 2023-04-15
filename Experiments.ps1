@@ -6,7 +6,7 @@ function Expand-Hashtable {
   param(
     $InputObject,
     [int]$Level = 0,
-    [string]$Parent = "root"
+    [string]$Parent = 'root'
   )
 
   if ($InputObject -is [array] -or $InputObject -is [System.Collections.Generic.List`1[System.Object]]) {
@@ -18,7 +18,7 @@ function Expand-Hashtable {
   }
 
   if ($InputObject -is [hashtable]) {
-    Write-Debug "[L${Level}: $parent Hashtable] detected: $($InputObject.Keys)"
+    # Write-Debug "[L${Level}: $parent Hashtable] detected: $($InputObject.Keys)"
     $Output = [PSCustomObject]$InputObject
     foreach ($k in $InputObject.keys) {
       $Output.$k = Expand-Hashtable $InputObject[$k] -Level ($Level + 1) -Parent "$parent.$($InputObject.PkgName).$k"
@@ -58,4 +58,37 @@ function Convert-Hashtable {
   }
   $output += '}'
   return $output
+}
+
+function Save-Icon {
+  param(
+    [string]$IconPath
+  )
+
+  $iconFilePath, $iconIndex = $IconPath.Split(',')
+  if (!(Test-Path $iconFilePath)) {
+    Throw "Icon file '$iconFilePath' not found."
+  }
+  if ($iconIndex) {
+    $iconIndex = "_$iconIndex"
+  }
+  $iconParent = Split-Path $iconFilePath -Parent
+  $iconName = Split-Path $iconFilePath -Leaf
+  # Remove extension
+  $iconName = $iconName -replace '\.[^.]*$', ''
+  $iconName = "${iconName}${iconIndex}.ico"
+  $newIconPath = "$iconParent\$iconName"
+  
+  Add-Type -AssemblyName System.Drawing
+  $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconFilePath)
+  $icon.Save([System.IO.File]::Create($newIconPath))
+}
+
+function Refresh-IconCache {
+  $shell = New-Object -ComObject 'Shell.Application'
+  $startMenu = $shell.NameSpace(0x0A)
+  $desktop = $shell.NameSpace(0)
+  
+  $startMenu.Items() | ForEach-Object { $_.InvokeVerb('refresh') }
+  $desktop.Items() | ForEach-Object { $_.InvokeVerb('refresh') }
 }
