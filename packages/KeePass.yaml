@@ -1,3 +1,5 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
+  - icon: '{PkgPath}/{PkgName}.exe,0'
+    name: '{PkgName}'
+    target: '{PkgPath}/KeePass_32512.ico'

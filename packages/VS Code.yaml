@@ -1,14 +1,29 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/code.exe"
+---
 paths:
-  - "{PkgPath}"
+  - '{PkgPath}/bin'
 reg:
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here"
-    name: "Icon"
-    data: "{PkgPath}/code.exe"
-    type: "String"
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\VS Code DBX Here\\command"
-    name: ""
-    data: "\"{PkgPath}/code.exe\" \"%1\""
-    type: "String"
+  - data: '{PkgPath}/code.exe'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\VS Code LSH Here
+    name: Icon
+    type: String
+  - data: '"{PkgPath}/code.exe" "%1"'
+    key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\VS Code LSH Here\command
+    name: (Default)
+    type: String
+shortcuts:
+  - name: '{PkgName}'
+    target: '{PkgPath}/code.exe'
+dropboxignore:
+  - target: '{PkgPath}/data/user-data/Cache'
+  - target: '{PkgPath}/data/user-data/CachedConfigurations'
+  - target: '{PkgPath}/data/user-data/CachedData'
+  - target: '{PkgPath}/data/user-data/CachedExtensions'
+  - target: '{PkgPath}/data/user-data/CachedExtensionVSIXs'
+  - target: '{PkgPath}/data/user-data/Code Cache'
+  - target: '{PkgPath}/data/user-data/GPUCache'
+  - target: '{PkgPath}/data/user-data/logs'
+  - target: '{PkgPath}/data/user-data/Service Worker/ScriptCache'
+  - target: '{PkgPath}/data/user-data/User/globalStorage/ms-vscode.powershell/logs'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

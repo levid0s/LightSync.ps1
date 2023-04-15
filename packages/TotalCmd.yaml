@@ -1,6 +1,16 @@
-shortcuts:
-  - name: "Total Commander"
-    target: "{PkgPath}/{PkgName}64.exe"
+---
+assocs:
+  - AssocIcon: '{PkgPath}/totalcmd64.exe,8'
+    assoc: ["7z", "gz", "rar", "tar", "tgz", "zip"]
+    target: '{PkgPath}/totalcmd64.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/totalcmd64.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/totalcmd64.exe'
+paths:
+  - '{PkgPath}'
+shortcuts:
+  - name: Total Commander
+    target: '{PkgPath}/totalcmd64.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

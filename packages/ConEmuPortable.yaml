@@ -1,17 +1,23 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
-    args: ""
-    icon: "{PkgPath}/App/ConEmu/ConEmu.exe"
+  - name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'
+    params: ''
+    icon: '{PkgPath}/App/ConEmu/ConEmu.exe'
 fonts:
-  - name: "Cascadia Code PL"
-    path: "{PkgPath}/_ExtRes/CascadiaCodePL.ttf"
+  - name: Cascadia Code PL
+    path: '{PkgPath}/_ExtRes/CascadiaCodePL.ttf'
 reg:
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\ConEmu DBX Here"
-    name: "Icon"
-    data: "{PkgPath}/App/ConEmu/ConEmu.exe"
-    type: "String"
-  - key: "HKEY_CURRENT_USER\\SOFTWARE\\Classes\\directory\\shell\\ConEmu DBX Here\\command"
-    name: ""
-    data: "\"{PkgPath}/ConEmuPortable.exe\" -Dir \"%1\""
-    type: "String"
+  - key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\ConEmu DBX Here
+    name: Icon
+    data: '{PkgPath}/App/ConEmu/ConEmu.exe'
+    type: String
+  - key: HKEY_CURRENT_USER\SOFTWARE\Classes\directory\shell\ConEmu DBX Here\command
+    name: ''
+    data: '"{PkgPath}/ConEmuPortable.exe" -Dir "%1"'
+    type: String
+dropboxignore:
+  - target: '{PkgPath}/Data/Temp'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

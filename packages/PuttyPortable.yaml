@@ -1,3 +1,10 @@
+---
 shortcuts:
-  - name: "Putty"
-    target: "{PkgPath}/{PkgName}.exe"
+  - name: Putty
+    target: '{PkgPath}/{PkgName}.exe'
+    icon: '{PkgPath}/App/AppInfo/appicon.ico'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline
+paths:
+  - '{PkgPath}'

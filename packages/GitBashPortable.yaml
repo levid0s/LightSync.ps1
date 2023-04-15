@@ -1,0 +1,19 @@
+---
+paths:
+  - '{PkgPath}/bin'
+  - '{PkgPath}/mingw64/bin'
+  - '{PkgPath}/usr/bin'
+runonce:
+  - command: git config --global user.name "Lev"
+  - command: git config --global user.email lev@me.com
+  - command: git config --global push.default current
+  - command: git config --global remote.pushDefault origin
+junction:
+  - link: $env:USERPROFILE\.ssh
+    target: '{DbxRoot}\ssh'
+    force: true
+dropboxignore:
+  - target: '{PkgPath}/tmp'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

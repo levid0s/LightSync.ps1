@@ -1,4 +1,28 @@
+---
+assocs:
+  - assoc: ["jpg", "jpeg"]
+    assocIcon: '{PkgPath}/FSIcons.db,4'
+    target: '{PkgPath}/{PkgName}.exe'
+  - assoc: ["bmp"]
+    assocIcon: '{PkgPath}/FSIcons.db,0'
+    target: '{PkgPath}/{PkgName}.exe'
+  - assoc: ["gif"]
+    assocIcon: '{PkgPath}/FSIcons.db,3'
+    target: '{PkgPath}/{PkgName}.exe'
+  - assoc: ["png"]
+    assocIcon: '{PkgPath}/FSIcons.db,7'
+    target: '{PkgPath}/{PkgName}.exe'
+  - assoc: ["tif", "tiff"]
+    assocIcon: '{PkgPath}/FSIcons.db,10'
+    description: TIFF Image
+    target: '{PkgPath}/{PkgName}.exe'
+  - assoc: ["dng"]
+    assocIcon: '{PkgPath}/FSIcons.db,14'
+    target: '{PkgPath}/{PkgName}.exe'
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
-    assoc: ["png", "jpg", "jpeg"]
+  - assoc: ["wmf","cr2", "crw", "nef"]
+    name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

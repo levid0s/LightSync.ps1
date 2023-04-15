@@ -1,10 +1,17 @@
-shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/7zFM.exe"
-    args: ""
-    icon: "{PkgPath}/7zFM.exe"
-    assoc: ["zip", "7z", "rar"]
-    assocIcon: "{PkgPath}/7z.dll,1"
+---
+assocs:
+  - AssocIcon: '{PkgPath}/7z.dll,1'
+    assoc: ["7z", "gz", "rar", "tar", "tgz", "zip"]
+    target: '{PkgPath}/7zFM.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/7zFM.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/7zFM.exe'
+shortcuts:
+  - assocIcon: '{PkgPath}/7z.dll,1'
+    icon: '{PkgPath}/7zFM.exe'
+    name: '{PkgName}'
+    params: ''
+    target: '{PkgPath}/7zFM.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

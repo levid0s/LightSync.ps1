@@ -1,6 +1,10 @@
+---
 shortcuts:
-  - name: "TreeSize Free"
-    target: "{PkgPath}/TreeSizeFree.exe"
+  - name: TreeSize Free
+    target: '{PkgPath}/TreeSizeFree.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/TreeSizeFree.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/TreeSizeFree.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline

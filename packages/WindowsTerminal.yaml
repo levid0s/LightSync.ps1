@@ -1,6 +1,11 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
+  - name: Windows Terminal
+    target: '{PkgPath}/{PkgName}.exe'
+    icon: '{PkgPath}/wt.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/{PkgName}.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/{PkgName}.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: Offline
