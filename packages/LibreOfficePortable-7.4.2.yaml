@@ -3,7 +3,7 @@ shortcuts:
   - assocparam: ' -o "%1"'
     name: '{PkgName}'
     target: '{PkgPath}/LibreOfficePortable.exe'
-  - assoc: ["xls", "xlsx"]
+  - assoc: ["csv", "xls", "xlsx"]
     assocparam: ' -o "%1"'
     name: '{PkgName} Calc'
     target: '{PkgPath}/LibreOfficeCalcPortable.exe'
