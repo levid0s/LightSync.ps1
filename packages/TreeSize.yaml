@@ -4,3 +4,6 @@ shortcuts:
 folders:
   - path: "{PkgPath}"
     versionfrom: "{PkgPath}/TreeSizeFree.exe"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

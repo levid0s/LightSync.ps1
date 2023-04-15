@@ -3,3 +3,17 @@ shortcuts:
   - icon: '{PkgPath}/App/Chrome-bin/chrome.exe,4'
     name: '{PkgName}'
     target: '{PkgPath}/{PkgName}.exe'
+dropboxignore:
+  - target: '{PkgPath}/Data/profile/GrShaderCache'
+  - target: '{PkgPath}/Data/profile/ShaderCache'
+  - target: '{PkgPath}/Data/profile/Module Info Cache'
+  - target: '{PkgPath}/Data/profile/Default/GPUCache'
+  - target: '{PkgPath}/Data/profile/Default/History Provider Cache'
+  - target: '{PkgPath}/Data/profile/Default/Service Worker/CacheStorage'
+  - target: '{PkgPath}/Data/profile/Default/Service Worker/ScriptCache'
+  - target: '{PkgPath}/Data/profile/Default/Storage/ext/gfdkimpbcpahaombhbimeihdjnejgicl/def/GPUCache'
+  - target: '{PkgPath}/Data/profile/Default/Storage/ext/nmmhkkegccagdldgiimedpiccmgmieda/def/GPUCache'
+  - target: '{PkgPath}/Data/profile/Default/Extensions/Temp'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

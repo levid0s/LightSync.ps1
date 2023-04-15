@@ -13,3 +13,17 @@ reg:
 shortcuts:
   - name: '{PkgName}'
     target: '{PkgPath}/code.exe'
+dropboxignore:
+  - target: '{PkgPath}/data/user-data/Cache'
+  - target: '{PkgPath}/data/user-data/CachedConfigurations'
+  - target: '{PkgPath}/data/user-data/CachedData'
+  - target: '{PkgPath}/data/user-data/CachedExtensions'
+  - target: '{PkgPath}/data/user-data/CachedExtensionVSIXs'
+  - target: '{PkgPath}/data/user-data/Code Cache'
+  - target: '{PkgPath}/data/user-data/GPUCache'
+  - target: '{PkgPath}/data/user-data/logs'
+  - target: '{PkgPath}/data/user-data/Service Worker/ScriptCache'
+  - target: '{PkgPath}/data/user-data/User/globalStorage/ms-vscode.powershell/logs'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

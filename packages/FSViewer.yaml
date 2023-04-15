@@ -23,3 +23,6 @@ shortcuts:
   - assoc: ["wmf","cr2", "crw", "nef"]
     name: '{PkgName}'
     target: '{PkgPath}/{PkgName}.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

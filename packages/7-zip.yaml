@@ -8,3 +8,6 @@ shortcuts:
     name: '{PkgName}'
     params: ''
     target: '{PkgPath}/7zFM.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

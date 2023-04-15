@@ -4,3 +4,8 @@ shortcuts:
     icon: '{PkgPath}/App/Foxit Reader/FoxitPDFReader.exe,0'
     name: '{PkgName}'
     target: '{PkgPath}/{PkgName}.exe'
+dropboxignore:
+  - target: '{PkgPath}/Data/Temp'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

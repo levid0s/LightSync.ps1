@@ -8,3 +8,6 @@ files:
 paths:
   - "{DbxRoot}\\Python3.11.1"
   - "{DbxRoot}\\Python3.11.1\\Scripts"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

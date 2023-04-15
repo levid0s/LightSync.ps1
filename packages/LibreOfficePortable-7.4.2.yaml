@@ -15,3 +15,6 @@ shortcuts:
     assocparam: ' -o "%1"'
     name: '{PkgName} Writer'
     target: '{PkgPath}/LibreOfficeWriterPortable.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

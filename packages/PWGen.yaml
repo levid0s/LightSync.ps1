@@ -3,3 +3,6 @@ shortcuts:
   - icon: '{PkgPath}/PWGen_MAINICON.ico,0'
     name: '{PkgName}'
     target: '{PkgPath}/{PkgName}.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

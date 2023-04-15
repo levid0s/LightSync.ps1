@@ -21,3 +21,6 @@ reg:
     name: "Uninstaller Shortcut"
     data: 1
     type: "DWord"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

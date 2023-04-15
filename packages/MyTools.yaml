@@ -10,10 +10,10 @@ ShellStaticVerbs:
     verblabel: Extract Icons
 paths:
   - '{DbxRoot}/google-cloud-sdk-withpy/bin'
+  - '{DbxRoot}/../src/useful/scripts'
+  - '{DbxRoot}/../src/PS-Gcloud'
   - '{DbxRoot}/sysinternals'
   - '{DbxRoot}/nirsoft'
-  - '{DbxRoot}/Hashicorp'
-  - '{DbxRoot}/PuTTY'
   - '{DbxRoot}/Hashicorp'
   - '{DbxRoot}/GitBashPortable/bin'
   - '{DbxRoot}/GitBashPortable/mingw64/bin'
@@ -22,13 +22,28 @@ paths:
   - '{DbxRoot}/flac-1.3.2-win/win64'
   - '{DbxRoot}/go/bin'
   - '{DbxRoot}/Graphviz/bin'
-  - N:/src/PS-Gcloud
   - '{DbxRoot}'
+dropboxoffline:
+  - path: '{DbxRoot}/google-cloud-sdk-withpy'
+    mode: 'Offline'
+  - path: '{DbxRoot}/sysinternals'
+    mode: 'Offline'
+  - path: '{DbxRoot}/nirsoft'
+    mode: 'Offline'
+  - path: '{DbxRoot}/Hashicorp'
+    mode: 'Offline'
+  - path: '{DbxRoot}/GitBashPortable'
+    mode: 'Offline'
+  - path: '{DbxRoot}/ffmpeg'
+    mode: 'Offline'
+  - path: '{DbxRoot}/flac-1.3.2-win'
+    mode: 'Offline'
 reg:
   - data: 1
     key: HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer
     name: DisableSearchBoxSuggestions
     type: DWord
+    admin: true
   - admin: true
     data: 1
     key: HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer

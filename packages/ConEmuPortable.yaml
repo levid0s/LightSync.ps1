@@ -15,3 +15,8 @@ reg:
     name: ""
     data: "\"{PkgPath}/ConEmuPortable.exe\" -Dir \"%1\""
     type: "String"
+dropboxignore:
+  - target: '{PkgPath}/Data/Temp'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

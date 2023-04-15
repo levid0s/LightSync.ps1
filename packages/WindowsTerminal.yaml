@@ -5,3 +5,6 @@ shortcuts:
 folders:
   - path: "{PkgPath}"
     versionfrom: "{PkgPath}/{PkgName}.exe"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

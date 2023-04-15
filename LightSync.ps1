@@ -14,9 +14,15 @@ param(
 
 $DebugPreference = 'Continue'
 
-. $PSScriptRoot/_LightSyncHelper.ps1
+$ScriptRoot = $PSScriptRoot
+if (!$ScriptRoot) {
+  $ScriptRoot = Get-Location
+}
 
-Write-DebugLog "Starting script"
+. "$ScriptRoot/../../src/useful/ps-winhelpers/_PS-WinHelpers.ps1"
+. "$ScriptRoot/_LightSyncHelper.ps1"
+
+Write-DebugLog 'Starting script'
 
 if ($Install) {
   Install-Dependencies
@@ -35,4 +41,4 @@ Invoke-LightSync -PackageFile $PackageFile
 
 Update-PathsInShell
 
-Write-DebugLog "Exiting"
+Write-DebugLog 'Exiting'

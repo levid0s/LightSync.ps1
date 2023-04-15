@@ -20,3 +20,6 @@ reg:
 shortcuts:
   - name: Winamp
     target: '{DbxRoot}/Winamp-58portable/winamp.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

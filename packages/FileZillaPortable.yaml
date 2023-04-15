@@ -2,3 +2,6 @@ shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/{PkgName}.exe"
     icon: "{PkgPath}/App/filezilla/filezilla.exe"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

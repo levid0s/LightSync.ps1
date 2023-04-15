@@ -1,3 +1,6 @@
 shortcuts:
   - name: "{PkgName}"
     target: "{PkgPath}/{PkgName}.exe"
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

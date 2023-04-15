@@ -20,4 +20,8 @@ shortcuts:
     icon: '{PkgPath}/notepad++_100.ico'
     name: '{PkgName}'
     target: '{PkgPath}/notepad++.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'
+
 # 🗲
