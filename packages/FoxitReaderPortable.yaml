@@ -8,4 +8,4 @@ dropboxignore:
   - target: '{PkgPath}/Data/Temp'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

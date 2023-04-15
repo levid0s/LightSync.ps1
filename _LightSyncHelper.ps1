@@ -554,11 +554,11 @@ function Update-RunOnce {
 
   foreach ($r in $RunOnce) {
     $command = TemplateStr -InputString $r.command -PackageName $r.PkgName
-    # Calculate HAsh of the $command string
+    # Calculate Hash of the $command string
     $hash = Get-StringHash -String $command -HashAlgorithm MD5
     $regdata = Get-RegValue -FullPath "$LSDREG\RunOnceData\$hash" -ErrorAction SilentlyContinue
     if ($regdata -and !$force) {
-      Write-DebugLog "Skipping RunOnce command: $command"
+      Write-DebugLog "This command was already done, skipping: $command"
       continue
     }
     $cmdArgs = @('/c')
@@ -581,10 +581,40 @@ function Update-Junctions {
   )
 
   foreach ($j in $Junctions) {
+    # Target is the real path
     $target = TemplateStr -InputString $j.target -PackageName $j.PkgName
-    $junction = TemplateStr -InputString $j.junction -PackageName $j.PkgName
-    Write-DebugLog "Creating junction: $junction -> $target"
-    # New-Junction -Target $target -Link $junction
+    $target = $ExecutionContext.InvokeCommand.ExpandString($target)
+    if (!(Test-Path $target)) {
+      Write-DebugLog "Target doesn't exist: $target. Skipping."
+      Continue
+    }
+    $target = Get-RealPath $target
+
+    # Junction is the virtual path
+    $junction = TemplateStr -InputString $j.link -PackageName $j.PkgName
+    $junction = $ExecutionContext.InvokeCommand.ExpandString($junction)
+    $junctionParent = Split-Path $junction -Parent
+    if (!(Test-Path $junctionParent)) {
+      Write-DebugLog "Junction parent doesn't exist: $junctionParent. Skipping."
+      continue
+    }
+    $junctionLeaf = Split-Path $junction -Leaf
+    $junctionParent = Get-RealPath $junctionParent
+    $junction = "$junctionParent\$junctionLeaf"
+    if (Test-Path $junction) {
+      if ($j.Force) {
+        $junctionBackup = "$junction-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Write-DebugLog "Something already exists at the junction's path, moving it out of the way: $junction -> $junctionBackup"
+        Rename-Item -Path $junction -NewName $junctionBackup
+      }
+      else {
+        Write-DebugLog "Something already exists at the junction's path, skipping: $junction"
+        Continue
+      }
+    }
+
+    Write-DebugLog "Creating junction: $junction <- $target"
+    New-Item -ItemType Junction -Path $junction -Target $target | Out-Null
   }
 }
 
@@ -603,7 +633,7 @@ function Invoke-LightSync {
     $tasks = $package.Keys | Where-Object { $_ -notin @('PkgName', 'PkgPath') }
     Write-DebugLog "Tasks for $($package.PkgName): $tasks"
     foreach ($task in $tasks) {
-      Write-DebugLog "Running task ``$task`` for $($package.PkgName) : $($package.$task)"
+      Write-DebugLog "Running task ``$task`` for $($package.PkgName) : $(Expand-Hashtable $package.$task)"
       switch ($task) {
         'shortcuts' {
           Update-Shortcuts `
@@ -683,7 +713,6 @@ function Invoke-LightSync {
         }
         'junction' {
           $Junctions = $package.junction
-          Write-Host ">> found junctions: $($Junctions | ConvertTo-Yaml)"
           Update-Junctions -Junctions $Junctions
         }
       }

@@ -22,6 +22,6 @@ shortcuts:
     target: '{PkgPath}/notepad++.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline
 
 # 🗲

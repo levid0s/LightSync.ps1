@@ -13,4 +13,4 @@ shortcuts:
     target: '{PkgPath}/totalcmd64.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

@@ -20,6 +20,7 @@ if (!$ScriptRoot) {
 }
 
 . "$ScriptRoot/../../src/useful/ps-winhelpers/_PS-WinHelpers.ps1"
+. "$ScriptRoot/Experiments.ps1"
 . "$ScriptRoot/_LightSyncHelper.ps1"
 
 Write-DebugLog 'Starting script'

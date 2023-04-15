@@ -5,4 +5,4 @@ shortcuts:
     target: '{PkgPath}/{PkgName}.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

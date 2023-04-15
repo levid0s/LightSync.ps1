@@ -1,13 +1,14 @@
+---
 files:
-  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python.exe"
+  - target: $env:LOCALAPPDATA\Microsoft\WindowsApps\python.exe
     state: absent
-  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python3.7.exe"
+  - target: $env:LOCALAPPDATA\Microsoft\WindowsApps\python3.7.exe
     state: absent
-  - target: "$env:LOCALAPPDATA\\Microsoft\\WindowsApps\\python3.exe"
+  - target: $env:LOCALAPPDATA\Microsoft\WindowsApps\python3.exe
     state: absent
 paths:
-  - "{DbxRoot}\\Python3.11.1"
-  - "{DbxRoot}\\Python3.11.1\\Scripts"
+  - '{DbxRoot}\Python3.11.1'
+  - '{DbxRoot}\Python3.11.1\Scripts'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

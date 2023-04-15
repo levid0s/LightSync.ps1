@@ -22,4 +22,4 @@ shortcuts:
     target: '{DbxRoot}/Winamp-58portable/winamp.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

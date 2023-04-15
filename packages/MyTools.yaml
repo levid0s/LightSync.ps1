@@ -25,19 +25,19 @@ paths:
   - '{DbxRoot}'
 dropboxoffline:
   - path: '{DbxRoot}/google-cloud-sdk-withpy'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/sysinternals'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/nirsoft'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/Hashicorp'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/GitBashPortable'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/ffmpeg'
-    mode: 'Offline'
+    mode: Offline
   - path: '{DbxRoot}/flac-1.3.2-win'
-    mode: 'Offline'
+    mode: Offline
 reg:
   - data: 1
     key: HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer

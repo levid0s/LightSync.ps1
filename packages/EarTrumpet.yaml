@@ -1,9 +1,10 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
+  - name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/{PkgName}.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/{PkgName}.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

@@ -26,4 +26,4 @@ dropboxignore:
   - target: '{PkgPath}/data/user-data/User/globalStorage/ms-vscode.powershell/logs'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

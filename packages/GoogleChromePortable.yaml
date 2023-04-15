@@ -16,4 +16,4 @@ dropboxignore:
   - target: '{PkgPath}/Data/profile/Default/Extensions/Temp'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline

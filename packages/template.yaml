@@ -1,6 +1,7 @@
+---
 shortcuts:
-  - name: "{PkgName}"
-    target: "{PkgPath}/{PkgName}.exe"
+  - name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'
 folders:
-  - path: "{PkgPath}"
-    versionfrom: "{PkgPath}/{PkgName}.exe"
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/{PkgName}.exe'

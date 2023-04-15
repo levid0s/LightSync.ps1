@@ -17,4 +17,4 @@ shortcuts:
     target: '{PkgPath}/LibreOfficeWriterPortable.exe'
 dropboxoffline:
   - path: '{PkgPath}'
-    mode: 'Offline'
+    mode: Offline
