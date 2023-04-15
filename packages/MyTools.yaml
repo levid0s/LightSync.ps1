@@ -23,6 +23,11 @@ paths:
   - '{DbxRoot}/go/bin'
   - '{DbxRoot}/Graphviz/bin'
   - '{DbxRoot}'
+runonce:
+  - command: powershell.exe -file "{LSRoot}/posh-git-1.1.0/install.ps1"
+symlink:
+  - link: "$env:USERPROFILE\\Documents\\WindowsPowerShell\\profile.ps1"
+    target: "{LSRoot}/PSProfile.CurrentUserAllHosts.ps1"
 dropboxoffline:
   - path: '{DbxRoot}/google-cloud-sdk-withpy'
     mode: Offline

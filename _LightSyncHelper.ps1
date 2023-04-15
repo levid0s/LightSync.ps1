@@ -613,6 +613,11 @@ function Update-Junctions {
     $junctionParent = Get-RealPath $junctionParent
     $junction = "$junctionParent\$junctionLeaf"
     if (Test-Path $junction) {
+      $jOld = Get-Item $junction
+      if ($jOld.Target -eq $target) {
+        Write-DebugLog "Junction already exists: $junction <- $target, skipping."
+        Continue
+      }
       if ($j.Force) {
         $junctionBackup = "$junction-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         Write-DebugLog "Something already exists at the junction's path, moving it out of the way: $junction -> $junctionBackup"
@@ -626,6 +631,54 @@ function Update-Junctions {
 
     Write-DebugLog "Creating junction: $junction <- $target"
     New-Item -ItemType Junction -Path $junction -Target $target | Out-Null
+  }
+}
+
+function Update-Symlinks {
+  param(
+    [PsObject]$Symlinks
+  )
+
+  foreach ($s in $Symlinks) {
+    # Target is the real path
+    $target = TemplateStr -InputString $s.target -PackageName $s.PkgName
+    $target = $ExecutionContext.InvokeCommand.ExpandString($target)
+    if (!(Test-Path $target)) {
+      Write-DebugLog "Target doesn't exist: $target. Skipping."
+      Continue
+    }
+    $target = Get-RealPath $target
+
+    # Symlink is the virtual path
+    $symlink = TemplateStr -InputString $s.link -PackageName $s.PkgName
+    $symlink = $ExecutionContext.InvokeCommand.ExpandString($symlink)
+    $symlinkParent = Split-Path $symlink -Parent
+    if (!(Test-Path $symlinkParent)) {
+      Write-DebugLog "Symlink parent doesn't exist: $symlinkParent. Skipping."
+      continue
+    }
+    $symlinkLeaf = Split-Path $symlink -Leaf
+    $symlinkParent = Get-RealPath $symlinkParent
+    $symlink = "$symlinkParent\$symlinkLeaf"
+    if (Test-Path $symlink) {
+      $sOld = Get-Item $symlink
+      if ($sOld.Target -eq $target) {
+        Write-DebugLog "Symlink already exists: $symlink <- $target, skipping."
+        Continue
+      }
+      if ($s.Force) {
+        $symlinkBackup = "$symlink-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Write-DebugLog "Something already exists at the symlink's path, moving it out of the way: $symlink -> $symlinkBackup"
+        Rename-Item -Path $symlink -NewName $symlinkBackup
+      }
+      else {
+        Write-DebugLog "Something already exists at the symlink's path, skipping: $symlink"
+        Continue
+      }
+    }
+
+    Write-DebugLog "Creating symlink: $symlink <- $target"
+    New-Item -ItemType SymbolicLink -Path $symlink -Target $target | Out-Null
   }
 }
 
@@ -725,6 +778,10 @@ function Invoke-LightSync {
         'junction' {
           $Junctions = $package.junction
           Update-Junctions -Junctions $Junctions
+        }
+        'symlink' {
+          $Symlinks = $package.symlink
+          Update-Symlinks -Symlinks $SymLinks
         }
       }
     }
