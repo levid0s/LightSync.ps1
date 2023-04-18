@@ -26,8 +26,8 @@ paths:
 runonce:
   - command: powershell.exe -file "{LSRoot}/posh-git-1.1.0/install.ps1"
 symlink:
-  - link: "$env:USERPROFILE\\Documents\\WindowsPowerShell\\profile.ps1"
-    target: "{LSRoot}/PSProfile.CurrentUserAllHosts.ps1"
+  - link: $env:USERPROFILE\Documents\WindowsPowerShell\profile.ps1
+    target: '{LSRoot}/PSProfile.CurrentUserAllHosts.ps1'
 dropboxoffline:
   - path: '{DbxRoot}/google-cloud-sdk-withpy'
     mode: Offline
@@ -141,3 +141,7 @@ shortcuts:
     name: Presentation Mode STOP
     params: ["/stop"]
     target: '%SYSTEMROOT%\System32\PresentationSettings.exe'
+  - name: Toggle Dark Mode
+    target: powershell.exe
+    params: ["-file", "{LSRoot}/Toggle-DarkMode.ps1"]
+    icon: '{LSRoot}/_PACKAGES/res/toggle_dark_mode.ico'

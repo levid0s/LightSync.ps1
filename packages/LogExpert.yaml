@@ -1,0 +1,14 @@
+---
+shortcuts:
+  - name: '{PkgName}'
+    target: '{PkgPath}/{PkgName}.exe'
+folders:
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/{PkgName}.exe'
+assocs:
+  - AssocIcon: '{PkgPath}/{PkgName}.exe,0'
+    assoc: ["log"]
+    target: '{PkgPath}/{PkgName}.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'

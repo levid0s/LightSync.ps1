@@ -9,3 +9,7 @@ folders:
 dropboxoffline:
   - path: '{PkgPath}'
     mode: Offline
+symlink:
+  - link: $env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json
+    target: '{PkgPath}/user-data/settings.json'
+    force: true
