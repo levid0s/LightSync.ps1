@@ -93,22 +93,6 @@ function Refresh-IconCache {
   $desktop.Items() | ForEach-Object { $_.InvokeVerb('refresh') }
 }
 
-
-<#
-Testing:
-
-Set-Location N:\Tools\_PACKAGES\
-. .\_LightSyncHelper.ps1
-. .\Experiments.ps1 
-$packages = Get-LightSyncPackageData 
-$DebugPreference = 'Continue'
-
-. .\Experiments.ps1; Expand-ObjectUi -InputObject $packages -FindNameFields PkgName
-
-
-. .\Experiments.ps1; Expand-ObjectUi -InputObject (Get-Process | Select -First 5)
-
-#>
 function Expand-ObjectUi {
   <#
   .VERSION 2023.04.22
@@ -121,7 +105,7 @@ function Expand-ObjectUi {
 
   #>
   param(
-    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]$InputObject,
+    [Parameter(Mandatory = $true)]$InputObject,
     [Parameter(Mandatory = $false)]$ParentNode,
     [Parameter(Mandatory = $false)][string[]]$FindNameFields # List of fields from where the Hashtable label can be extracted from
   )
@@ -167,9 +151,11 @@ function Expand-ObjectUi {
     }
   }
   elseif ($InputObject.GetType().Name -in ($enumTypes['list'] -split ' ')) {
+    Write-Debug 'Enumerating list..'
     $index = -1
     foreach ($item in $InputObject) {
       $index++
+      $node = New-Object System.Windows.Forms.TreeNode
 
       if ($item.GetType().Name -in ($enumTypes.Values -split ' ')) {
         $findName = $null
@@ -182,38 +168,30 @@ function Expand-ObjectUi {
         if (!$findName) {
           $findName = ($item.GetType().Name) + ': ' + $index
         }
-        $node = New-Object System.Windows.Forms.TreeNode
-        $node.Text = $findName
-        $node.Name = $item.GetType().Name
-        $parentNode.Nodes.Add($node) | Out-Null
-
-        Expand-ObjectUi -InputObject $item -ParentNode $node -FindNameFields $FindNameFields
       }
       else {
-        Expand-ObjectUi -InputObject $item -ParentNode $node -FindNameFields $FindNameFields
-
-        # $node = New-Object System.Windows.Forms.TreeNode
-        # $node.Text = $item
-        # $node.Name = $item
-        # $parentNode.Nodes.Add($node) | Out-Null
+        $findName = $item.Name
       }
+      $node.Text = $findName
+      $node.Name = $item.GetType().Name
+      $parentNode.Nodes.Add($node) | Out-Null
+
+      Expand-ObjectUi -InputObject $item -ParentNode $node -FindNameFields $FindNameFields
     }
   }
   elseif (($InputObject | Get-Member -MemberType Property).Count -gt 1) {
-    Write-Debug 'Enumerating custom object'
     $members = Get-Member -InputObject $InputObject -MemberType Property
     foreach ($m in $members) {
       $node = New-Object System.Windows.Forms.TreeNode
       $node.Name = $m.Name
       $node.Text = "$($m.Name): $($InputObject.$($m.Name))"
       $parentNode.Nodes.Add($node) | Out-Null
-      # Expand-ObjectUi -InputObject $item -ParentNode $node -FindNameFields $FindNameFields
       # Expand-ObjectUi -InputObject $item.$($m.Name) -ParentNode $node -FindNameFields $FindNameFields
     }
-  }
+  }  
   else {
     $node = New-Object System.Windows.Forms.TreeNode
-    $node.Text = "$InputObject (root)"
+    $node.Text = $InputObject.ToString()
     $node.Name = $InputObject
     $parentNode.Nodes.Add($node) | Out-Null
   }

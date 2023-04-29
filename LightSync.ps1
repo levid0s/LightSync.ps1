@@ -4,15 +4,17 @@
 # + Set Wifi network to Private
 
 param(
+  [Parameter(Position = 0)][string]$PackageFile,
+  [Parameter()][ValidateSet('exec', 'files', 'folders', 'fonts', 'paths', 'reg', 'shortcuts', 'symlink', 'junction', 'regswild', 'dropboxignore', 'dropboxoffline' )][string]$Action,
+  [switch]$InvokeToAdmin,
   [switch]$Install,
-  [string]$PackageFile,
-  # TODO - To implement $Action filter
-  [Parameter()][ValidateSet('exec', 'files', 'folders', 'fonts', 'paths', 'reg', 'shortcuts', 'symlink')][string]$Action,
   $ConfirmPreference = 'None',
-  $DebugPreference = 'Continue'
+  $DebugPreference = 'Continue',
+  [bool]$testBool
 )
-
 $DebugPreference = 'Continue'
+$ErrorActionPreference = 'Stop'
+# $VerbosePreference = 'Continue'
 
 $ScriptRoot = $PSScriptRoot
 if (!$ScriptRoot) {
@@ -23,7 +25,17 @@ if (!$ScriptRoot) {
 . "$ScriptRoot/Experiments.ps1"
 . "$ScriptRoot/_LightSyncHelper.ps1"
 
-Write-DebugLog 'Starting script'
+Write-DebugLog 'Starting LightSync'
+
+if ($InvokeToAdmin -and -not (IsAdmin)) {
+  Write-Debug 'Elevating to Admin'
+
+  $CustomArguments = @{InvokeToAdmin = $true }
+
+  if ($PackageFile) { $CustomArguments.PackageFile = Resolve-Path $PackageFile }
+  Invoke-ToAdmin -CustomArguments $CustomArguments
+  Return
+}
 
 if ($Install) {
   Install-Dependencies
@@ -38,8 +50,23 @@ if ($Install) {
   return
 }
 
+if ($PackageFile -in @('...', '?')) {
+  $PackageFile = Invoke-FilePicker -Filter 'LightSync Package (*.yaml)|*.yaml' -Path "$ScriptRoot/packages"
+}
+
+$LogPath = "$env:LOCALAPPDATA\Temp\LightSync\LightSync-$(Get-Date -Format 'yyyy-MM-dd').log"
+if (!(Test-Path (Split-Path $LogPath) -PathType Container)) {
+  New-Item -Path (Split-Path $LogPath) -ItemType Directory -Force | Out-Null
+}
+
+Start-Transcript -Path $LogPath -Append
 Invoke-LightSync -PackageFile $PackageFile
+Stop-Transcript
 
 Update-PathsInShell
 
-Write-DebugLog 'Exiting'
+if ($InvokeToAdmin -and (IsAdmin)) {
+  Read-Host 'Press enter to exit' | Out-Null
+}
+
+Write-DebugLog 'Exiting LightSync.'
