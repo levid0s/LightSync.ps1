@@ -1,16 +1,16 @@
 ## LightSync.sh
 
-LightSync is a Windows utility that lets you to define various config parameters as yaml files.
+LightSync is a utility that lets you define various Windows config parameters as yaml files, and apply those configs.
 
-It can install itself as a Scheduled TAsk and run periodically.
+It can install itself as a Scheduled Task and run periodically.
 
-I use this combined with Dropbox to sync my portable apps and configs across multiple machines.
+I'm using this script, combined with Dropbox, to sync my portable apps and configs across multiple machines.
 
 This tool builds on the fuctions I published in the [useful/PS-Winhelpers](https://github.com/levid0s/useful/tree/master/ps-winhelpers) repo.
 
 When syncing my portable apps, the 'LSH Apps' Start Menu folder gets created.
 
-The shortcuts have a ⚡ suffix so I know they are portable.
+The shortcuts have a ⚡ suffix so I know they are the portable versions.
 
 ![Start Menu](./res/demo-folder.png)
 
@@ -36,11 +36,74 @@ The shortcuts have a ⚡ suffix so I know they are portable.
 
 #### Step 1: Have some yaml files in ./packages
 
+For example, if you want to sync 7-zip portable, there's a `7-zip.yaml` file already in the `./packages` folder.
+
+```yaml
+---
+assocs:
+  - AssocIcon: '{PkgPath}/7z.dll,1'
+    assoc: ["7z", "gz", "rar", "tar", "tgz", "zip"]
+    target: '{PkgPath}/7zFM.exe'
+    friendlyAppName: '{PkgName} ⚡'
+folders:
+  - path: '{PkgPath}'
+    versionfrom: '{PkgPath}/7zFM.exe'
+shortcuts:
+  - assocIcon: '{PkgPath}/7z.dll,1'
+    icon: '{PkgPath}/7zFM.exe'
+    name: '{PkgName}'
+    params: ''
+    target: '{PkgPath}/7zFM.exe'
+dropboxoffline:
+  - path: '{PkgPath}'
+    mode: 'Offline'
+```
+
+The script will replace the `{PkgPath}` and `{PkgName}` variables with the actual values.
+
+- `{LSHRoot}` is the "LightSync Root" configured during the Install step
+- `{PkgName}` is the name of the yaml file without the extension. So, for `7-zip.yaml`, the `{PkgName}` is `7-zip`
+- `{PkgPath}` is `{LSHRoot}/{PkgName}`
+
+
+Dowload the portable version of [7-zip](https://www.7-zip.org/a/7z2300-extra.7z) and extract it to the "{LSHRoot}/{PkgName}" path:
+
+```
+    Directory: N:\Tools\7-Zip
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+da----        15/04/2023     13:27                Lang
+-a----        27/12/2021     10:00         112890 7-zip.chm
+-a----        26/12/2021     14:00          93696 7-zip.dll
+-a----        26/12/2021     14:00          62976 7-zip32.dll
+-a----        26/12/2021     14:00        1710080 7z.dll
+-a----        26/12/2021     14:00         535040 7z.exe
+-a----        26/12/2021     14:00         215040 7z.sfx
+-a----        26/12/2021     14:00         193536 7zCon.sfx
+-a----        26/12/2021     14:00         945664 7zFM.exe
+-a----        15/04/2023     15:31            766 7zFM.ico
+-a----        26/12/2021     14:00         667136 7zG.exe
+-a----        28/01/2018     09:00            366 descript.ion
+-a----        27/12/2021     08:52          54604 History.txt
+-a----        17/01/2021     15:12           3990 License.txt
+-a----        26/12/2021     13:54           1702 readme.txt
+-a----        10/01/2023     13:02           2153 test.exe.lnk
+-a----        26/12/2021     14:00          14848 Uninstall.exe
+```
+
+
+
 #### Step 2: Run Install
 
-You'll be allowed to select the list of packages to sync periodically.
+You'll be allowed to select the list of packages to sync periodically. (ie select which yaml files to auto-apply)
 
-Confirm the path for the LightSync script.
+At the next step, confirm your `{LSHRoot}` path.
+
+This is the path where you will keep all your portable apps.
+
+Note: The `LightSync.ps1` script can be located at a different location.
 
 ```
 .\LightSync.ps1 -Install
@@ -122,11 +185,11 @@ PSComputerName     :
 
 ```
 
-#### Step 3: Manual Sync
+#### Step 3: Perform a Manual Sync (Optional)
 
 An ad-hoc sync of a package file can also be performed.
 
-In this mode a scheduled task will not be installed.
+In this mode, a scheduled task will not be installed.
 
 ```
 .\LightSync.ps1 -PackageFile .\packages\7-zip.yaml
@@ -145,9 +208,11 @@ I'm using the following process to sync my portable apps and configs across mult
 
 #### Step 1: Install Dropbox
 
+Just a standard Dropbox install, it can be to any location.
+
 #### Step 2: Create a substed drive
 
-It is a good idea to abstract out the Dropbox's path, because this often changes between machines.
+It is a good idea to abstract out the Dropbox sync path, because this often changes between machines.
 
 Subst is a built-in Windows tool that can do this.
 
@@ -155,16 +220,16 @@ eg:
 ```
 subst N: "C:\Users\Lev\Dropbox\"
 ```
-You can put this script in the `shell:startup` folder.
+You can put this script in your `shell:startup` folder.
 
-One caveat is that any elevated process will not have access to a substed path by default, unless you re-run the subst command as admin also.
+One caveat is that any elevated process will not have access to a substed path by default, unless you also re-run the subst command as admin.
 
 
 #### Step 3: Install any portable apps
 
-Install your portable apps under the virtual `N:\Tools` path.
+Extract your portable apps under the virtual `N:\Tools` path.
 
-This will get synced by dropbox.
+The folder will get synced by Dropbox.
 
 #### Step 4: Clone the 'LightSync' and 'useful' repos
 
