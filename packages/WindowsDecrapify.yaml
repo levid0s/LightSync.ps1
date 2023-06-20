@@ -1,0 +1,272 @@
+windowsApps:
+  - name: Microsoft.Windows.Photos
+    state: absent
+  - name: Microsoft.YourPhone
+    state: absent
+  - name: Microsoft.3DBuilder
+    state: absent
+  - name: Microsoft.BingFinance
+    state: absent
+  - name: Microsoft.BingNews
+    state: absent
+  - name: Microsoft.BingSports
+    state: absent
+  - name: Microsoft.BingWeather
+    state: absent
+  - name: Microsoft.Getstarted
+    state: absent
+  - name: Microsoft.MicrosoftOfficeHub
+    state: absent
+  - name: Microsoft.MicrosoftSolitaireCollection
+    state: absent
+  - name: Microsoft.Office.OneNote
+    state: absent
+  - name: microsoft.windowscommunicationsapps
+    state: absent
+  - name: Microsoft.WindowsPhone
+    state: absent
+  - name: Microsoft.WindowsSoundRecorder
+    state: absent
+  - name: Microsoft.XboxApp
+    state: absent
+  - name: Microsoft.ZuneMusic
+    state: absent
+  - name: Microsoft.ZuneVideo
+    state: absent
+  - name: Microsoft.ScreenSketch
+    state: absent
+  - name: Microsoft.AppConnector
+    state: absent
+  - name: Microsoft.ConnectivityStore
+    state: absent
+  - name: Microsoft.Office.Sway
+    state: absent
+  - name: Microsoft.Messaging
+    state: absent
+  - name: Microsoft.CommsPhone
+    state: absent
+  - name: 9E2F88E3.Twitter
+    state: absent
+  - name: king.com.CandyCrushSodaSaga
+    state: absent
+  - name: Microsoft.WindowsFeedbackHub
+    state: absent
+  - name: Microsoft.GetHelp
+    state: absent
+  - name: Microsoft.Xbox.TCUI
+    state: absent
+  - name: Microsoft.XboxGameOverlay
+    state: absent
+  - name: Microsoft.XboxSpeechToTextOverlay
+    state: absent
+  - name: Microsoft.MixedReality.Portal
+    state: absent
+  - name: Microsoft.XboxIdentityProvider
+    state: absent
+WindowsOptionalFeatures:
+  - name: WorkFolders-Client
+    state: absent
+  - name: MediaPlayback
+    state: absent
+reg:
+  - key: HKLM:\Software\Policies\Microsoft\Windows\DataCollection
+    name: AllowTelemetry
+    data: 0
+    type: DWord
+    note: Disable telemetry
+  - key: HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting
+    name: Value
+    data: 0
+    type: DWord
+    note: Disable Wi-Fi Sense
+  - key: HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots
+    name: Value
+    data: 0
+    type: DWord
+    note: Disable Wi-Fi Sense
+  - key: HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer
+    name: SmartScreenEnabled
+    data: Off
+    type: String
+    note: DLM:\Software\Misable SmartScreen Filter
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost
+    name: EnableWebContentEvaluation
+    data: 0
+    type: DWord
+    note: Disable SmartScreen Filter
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\AppHost
+    name: EnableWebContentEvaluation
+    data: 0
+    type: DWord
+    note: Disable SmartScreen Filter
+  - key: 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}'
+    name: SensorPermissionState
+    data: 0
+    type: DWord
+    note: Disable Location Tracking
+  - key: HKLM:\System\CurrentControlSet\Services\lfsvc\Service\Configuration
+    name: Status
+    data: 0
+    type: DWord
+    note: Disable Location Tracking
+  - key: HKCU:\Software\Microsoft\Siuf\Rules
+    name: NumberOfSIUFInPeriod
+    data: 0
+    type: DWord
+    note: Disable Feedback
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo
+    name: Enabled
+    data: 0
+    type: DWord
+    note: Disable Advertising ID
+  - key: HKCU:\Software\Microsoft\Personalization\Settings
+    name: AcceptedPrivacyPolicy
+    data: 0
+    type: DWord
+    note: Disable Cortana
+  - key: HKCU:\Software\Microsoft\InputPersonalization
+    name: RestrictImplicitTextCollection
+    data: 1
+    type: DWord
+    note: Disable Cortana
+  - key: HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore
+    name: HarvestContacts
+    data: 0
+    type: DWord
+    note: Disable Cortana
+  - key: HKLM:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config
+    name: DODownloadMode
+    data: 1
+    type: DWord
+    note: Restrict Windows Update P2P only to local network
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\DeliveryOptimization
+    name: SystemSettingsDownloadMode
+    data: 3
+    type: DWord
+    note: Restrict Windows Update P2P only to local network
+  - key: HKLM:\System\CurrentControlSet\Control\Remote Assistance
+    name: fAllowToGetHelp
+    data: 0
+    type: DWord
+    note: Disable Remote Assistance
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers
+    name: DisableAutoplay
+    data: 1
+    type: DWord
+    note: Disable AutoPlay
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
+    name: NoDriveTypeAutoRun
+    data: 255
+    type: DWord
+    note: Disable AutoPlay
+  - key: HKCU:\Control Panel\Accessibility\StickyKeys
+    name: Flags
+    data: 506
+    type: String
+    note: Disable Sticky keys prompt
+
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: ContentDeliveryAllowed
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: FeatureManagementEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: OemPreInstalledAppsEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: PreInstalledAppsEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: PreInstalledAppsEverEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SilentInstalledAppsEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-314559Enabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338387Enabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338388Enabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338389Enabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338393Enabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContentEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SystemPaneSuggestionsEnabled
+    data: 0
+    type: DWord
+
+  - key: HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent
+    name: DisableWindowsConsumerFeatures
+    data: 1
+    type: DWord
+    note: Prevents Suggested Applications returning
+  - key: HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore
+    name: AutoDownload
+    data: 2
+    type: DWord
+    note:  Prevents Suggested Applications returning
+  - key: HKLM:\Software\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}
+    state: absent
+    note: Remove 3D Objects icon from computer namespace
+
+runonce:
+  - command: 'sc config diagnosticshub.standardcollector.service start= disabled'
+    note: Microsoft Diagnostics Hub Standard Collector Service
+  - command: 'sc config DiagTrack start= disabled'
+    note: Diagnostics Tracking Service
+  - command: 'sc config dmwappushservice start= disabled'
+    note: WAP Push Message Routing Service (see known issues)
+  - command: 'sc config RetailDemo start= disabled'
+    note: Retail Demo Service
+  - command: 'sc config OneSyncSvc start= disabled'
+    note: Sync Host
+  - command: 'sc config lfsvc start= disabled'
+    note: Geolocation Service
+  - command: 'sc config WbioSrvc start= disabled'
+    note: Windows Biometric Service
+  - command: 'sc config MapsBroker start= disabled'
+    note: Downloaded Maps Manager
+  - command: 'sc config NetTcpPortSharing start= disabled'
+    note: Net.Tcp Port Sharing Service
+  - command: 'sc config RemoteAccess start= disabled'
+    note: Routing and Remote Access
+  - command: 'sc config SharedAccess start= disabled'
+    note: Internet Connection Sharing (ICS)
+  - command: 'sc config TrkWks start= disabled'
+    note: Distributed Link Tracking Client
+  - command: 'sc config WbioSrvc start= disabled'
+    note: Windows Biometric Service
+  # - command: 'sc config WlanSvc start= disabled'
+  #   note: WLAN AutoConfig
+  - command: 'sc config XblAuthManager start= disabled'
+    note: Xbox Live Auth Manager
+  - command: 'sc config XblGameSave start= disabled'
+    note: Xbox Live Game Save
+  - command: 'sc config XboxNetApiSvc start= disabled'  
+    note: Xbox Live Networking Service
+  - command: 'sc config ndu start= disabled'
+    note: Network Data Usage Monitoring Driver
+    
