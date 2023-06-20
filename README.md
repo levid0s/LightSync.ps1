@@ -6,7 +6,14 @@ It can install itself as a Scheduled TAsk and run periodically.
 
 I use this combined with Dropbox to sync my portable apps and configs across multiple machines.
 
-This tool builds on the fuctions published in the [useful/PS-Winhelpers](https://github.com/levid0s/useful/tree/master/ps-winhelpers) repo.
+This tool builds on the fuctions I published in the [useful/PS-Winhelpers](https://github.com/levid0s/useful/tree/master/ps-winhelpers) repo.
+
+When syncing my portable apps, the 'LSH Apps' Start Menu folder gets created.
+
+The shortcuts have a ⚡ suffix so I know they are portable.
+
+![Start Menu](./res/demo-folder.png)
+
 
 
 ### Supported config types
