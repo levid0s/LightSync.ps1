@@ -69,6 +69,22 @@ WindowsOptionalFeatures:
   - name: MediaPlayback
     state: absent
 reg:
+  # STF Chrome
+  # TODO - needs permission to the Edge key
+  - key: HKCU:\SOFTWARE\Policies\Microsoft\Edge
+    name: BrowserAddProfileEnabled
+    data: 0
+    type: DWord
+  - key: HKCU:\SOFTWARE\Policies\Microsoft\Edge
+    name: SyncDisabled
+    data: 1
+    type: DWord
+  # STF Windows
+  - key: HKLM:\Software\Policies\Microsoft\Windows\WorkplaceJoin
+    name: BlockAADWorkplaceJoin
+    data: 1
+    type: DWord
+    note: Disable Online Windows Account Pop-Up
   - key: HKLM:\Software\Policies\Microsoft\Windows\DataCollection
     name: AllowTelemetry
     data: 0
