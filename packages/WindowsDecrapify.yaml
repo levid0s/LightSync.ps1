@@ -71,6 +71,7 @@ WindowsOptionalFeatures:
 reg:
   # STF Chrome
   # TODO - needs permission to the Edge key
+  # https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies
   - key: HKCU:\SOFTWARE\Policies\Microsoft\Edge
     name: BrowserAddProfileEnabled
     data: 0
@@ -231,6 +232,15 @@ reg:
     type: DWord
   - key: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
     name: SystemPaneSuggestionsEnabled
+    data: 0
+    type: DWord
+
+  - key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Search
+    name: SearchboxTaskbarMode
+    data: 0
+    type: DWord
+  - key: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: HideFileExt
     data: 0
     type: DWord
 
