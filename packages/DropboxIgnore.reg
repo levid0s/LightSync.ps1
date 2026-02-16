@@ -1,0 +1,34 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\*\shell\DropboxIgnore]
+@="Dropbox -> Ignore"
+"Icon"="C:\\Program Files (x86)\\Dropbox\\Client\\Dropbox.exe"
+"Extended"=""
+
+[HKEY_CLASSES_ROOT\*\shell\DropboxIgnore\command]
+@="powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Set-Content -Path \\\"%1\\\" -Stream com.dropbox.ignored -Value 1\""
+
+[HKEY_CLASSES_ROOT\*\shell\DropboxUnignore]
+@="Dropbox -> Unignore"
+"Icon"="C:\\Program Files (x86)\\Dropbox\\Client\\Dropbox.exe"
+"Extended"=""
+
+[HKEY_CLASSES_ROOT\*\shell\DropboxUnignore\command]
+@="powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Clear-Content -Path \\\"%1\\\" -Stream com.dropbox.ignored\""
+
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxIgnore]
+@="Dropbox -> Ignore"
+"Icon"="C:\\Program Files (x86)\\Dropbox\\Client\\Dropbox.exe"
+"Extended"=""
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxIgnore\command]
+@="powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Set-Content -Path \\\"%1\\\" -Stream com.dropbox.ignored -Value 1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxUnignore]
+@="Dropbox -> Unignore"
+"Icon"="C:\\Program Files (x86)\\Dropbox\\Client\\Dropbox.exe"
+"Extended"=""
+
+[HKEY_CLASSES_ROOT\Directory\shell\DropboxUnignore\command]
+@="powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Clear-Content -Path \\\"%1\\\" -Stream com.dropbox.ignored\""
